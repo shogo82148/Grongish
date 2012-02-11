@@ -24,10 +24,13 @@ _gr_numbers = (
 )
 
 class GrongishTranslator(object):
-    re_long = re.compile(u'(.[ャュョ]?)ー')
-    re_ltu = re.compile(u'ッ(.[ャュョ]?)')
-    def __init__(self, tagger=None):
+    re_long = re.compile(u'(.[ャュョァィゥェォ]?)ー')
+    re_ltu = re.compile(u'ッ(.[ャュョァィゥェォ]?)')
+    def __init__(self, tagger=None, dic=None):
         self._tagger = tagger or MeCab.Tagger()
+        self._grtagger = None
+        if dic:
+            self._grtagger = MeCab.Tagger('-d %s -Oime' % dic)
         self._dic = self._mk_dic()
         self._num_dic = dict([(ch, i%10) for i,ch in enumerate(_numbers)])
         self._num_dic[u'十'] = 10
@@ -57,7 +60,7 @@ class GrongishTranslator(object):
                 return u'パ'
             elif yomi==u'ヲ':
                 return u'ゾ'
-        if yomi in (u'クウガ', u'リント', u'ゲゲル',
+        if yomi in (u'グロンギ', u'クウガ', u'リント', u'ゲゲル',
                     u'ゲリゼギバスゲゲル', u'グセパ', u'バグンダダ', u'ザギバスゲゲル'):
             return yomi
         return ''.join((self._dic.get(ch, ch) for ch in yomi))
@@ -135,14 +138,42 @@ class GrongishTranslator(object):
         text = self.re_ltu.sub(u'\\1\\1', text)
         return text
 
+    re_numbers = re.compile(r'[0-9*+]+')
+    def grtranslate(self, text):
+        def translate_num(m):
+            number = m.group()
+            result = 0
+            for term in number.split('+'):
+                term_val = 1
+                for num in term.split('*'):
+                    term_val *= int(num)
+                result += term_val
+            return str(result)
+
+        if isinstance(text, unicode):
+            text = text.encode('utf-8')
+        text = self._grtagger.parse(text).decode('utf-8').strip('\r\n')
+        text = self.re_numbers.sub(translate_num, text)
+        return text
+
 def main():
-    g = GrongishTranslator()
-    print g.translate(u'殺してやる！')
-    print g.translate(u'命拾いしたな')
-    print g.translate(u'プレイヤー')
-    print g.translate(u'やってやる')
-    print g.translate(u'これはクウガのベルト')
-    print g.translate(u'0,1,2,3,4,5,6,7,8,9,10,20,300')
+    g = GrongishTranslator(dic='.')
+    test_text = [
+        u'殺してやる！',
+        u'命拾いしたな',
+        u'プレイヤー',
+        u'やってやる',
+        u'これはクウガのベルト',
+        u'本当に裏切ったんですか！？',
+        u'0,1,2,3,4,5,6,7,8,9,10,20,300',
+        u'日本語とグロンギ語の相互翻訳機能を追加しました。ぜひ、試してみてください。',
+        ]
+    for text in test_text:
+        print text
+        gr = g.translate(text)
+        print gr
+        print g.grtranslate(gr)
+        print
 
 if __name__=='__main__':
     main()
