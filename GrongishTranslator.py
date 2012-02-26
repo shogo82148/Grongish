@@ -157,7 +157,7 @@ class GrongishTranslator(object):
         return text
 
 def main():
-    g = GrongishTranslator(dic='.')
+    g = GrongishTranslator(dic='grongishdic')
     test_text = [
         u'殺してやる！',
         u'命拾いしたな',
