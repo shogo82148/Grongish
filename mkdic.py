@@ -145,6 +145,7 @@ class Dic(object):
             d = {}
             feature = self.left_ids[left_id]
             if feature.startswith(u'名詞'):
+                #Left-idが名詞の時は新しいidを作らない
                 for next_char in next_chars:
                     d[next_char] = left_id
             elif len(next_chars)>0:
