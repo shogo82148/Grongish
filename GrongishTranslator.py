@@ -138,7 +138,7 @@ class GrongishTranslator(object):
         text = self.re_ltu.sub(u'\\1\\1', text)
         return text
 
-    re_numbers = re.compile(r'[0-9*+]+')
+    re_numbers = re.compile(r'[0-9]+([+*][0-9]+)*')
     def grtranslate(self, text):
         def translate_num(m):
             number = m.group()
@@ -167,6 +167,7 @@ def main():
         u'本当に裏切ったんですか！？',
         u'0,1,2,3,4,5,6,7,8,9,10,20,300',
         u'日本語とグロンギ語の相互翻訳機能を追加しました。ぜひ、試してみてください。',
+        u'ボットさんはグロンギ語から日本語への翻訳もサポートします',
         ]
     for text in test_text:
         print text
