@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+B1;2c#!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
 import codecs
@@ -109,10 +109,7 @@ class Dic(object):
                 print >>sys.stderr, '%d...\r' % i,
             word = words[i]
             feature = right_ids[word[2]].split(',')
-            yomi = jcconv.hira2kata(word[0])
-            yomi = g._translate_node(word[-1], yomi, feature)
-            yomi = g.re_long.sub(u'\\1\\1', yomi)
-            yomi = g.re_ltu.sub(u'\\1\\1', yomi)
+            yomi = g.translate(word[-1])
             word[0] = yomi
 
     def build_new_ids(self):
