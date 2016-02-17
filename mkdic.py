@@ -170,7 +170,7 @@ class Dic(object):
         for right_id, left_ids in possible_pair.iteritems():
             next_chars = set()
             for left_id in left_ids:
-                if mtx.get(right_id, left_id)>=INF:
+                if mtx.get(right_id, left_id)>=INVALID_COST:
                     continue
                 for next_char in first_char[left_id]:
                     next_chars.add(next_char)
@@ -234,7 +234,6 @@ class Dic(object):
 def main():
     dic = Dic()
     dic.open_mozc_dic('./mozc/src/data/dictionary_oss')
-    return
     dic.to_grongish()
     dic.build_new_ids()
     dic.build_new_matrix()
