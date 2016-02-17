@@ -60,6 +60,15 @@ class GrongishTranslator(object):
                 return u'パ'
             elif yomi==u'ヲ':
                 return u'ゾ'
+        if features[0]==u'連体詞':
+            if yomi==u'コノ':
+                return u'ボン'
+            elif yomi==u'ソノ':
+                return u'ゴン'
+            elif yomi==u'アノ':
+                return u'ガン'
+            elif yomi==u'ドノ':
+                return u'ゾン'
         if yomi in (u'グロンギ', u'クウガ', u'リント', u'ゲゲル',
                     u'ゲリゼギバスゲゲル', u'グセパ', u'バグンダダ', u'ザギバスゲゲル'):
             return yomi
