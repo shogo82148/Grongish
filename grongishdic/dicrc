@@ -1,3 +1,4 @@
+cost-factor = 800
 config-charset = utf8
 bos-feature = BOS/EOS
 node-format-ime = %H
