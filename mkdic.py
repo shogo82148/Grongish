@@ -51,9 +51,11 @@ class Matrix(object):
         f = codecs.open(filename, 'w', 'utf-8')
         f.write('%d %d\n' % (self.right_size, self.left_size))
         for right_id in xrange(self.right_size):
+            print >>sys.stderr, '%d/%d...\r' % (right_id, self.right_size),
             for left_id in xrange(self.left_size):
                 f.write('%d %d %d\n' % (right_id, left_id, self.get(right_id, left_id)))
         f.close()
+        print >>sys.stderr, ''
 
 class FeatureIDs(list):
     def open_mozc(self, filename):
@@ -106,7 +108,7 @@ class Dic(object):
         print >>sys.stderr, 'To Grongish...'
         for i in xrange(len(words)):
             if i%1000==0:
-                print >>sys.stderr, '%d...\r' % i,
+                print >>sys.stderr, '%d/%d...\r' % (i, len(words)),
             word = words[i]
             feature = right_ids[word[2]].split(',')
             yomi = g.translate(word[-1])
@@ -217,6 +219,8 @@ class Dic(object):
         ltu_left_ids = self.ltu_left_ids
         ltu_right_ids = self.ltu_right_ids
         for surface, left_id, right_id, cost, feature in self.words:
+            if surface == ",":
+                continue
             if left_id in ltu_left_ids:
                 m = self.re_start.match(surface)
                 if m:
