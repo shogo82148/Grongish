@@ -173,21 +173,31 @@ class GrongishTranslator(object):
         return text
 
     re_numbers = re.compile(r'[0-9]+([+*][0-9]+)*')
-    def grtranslate(self, text):
-        def translate_num(m):
-            number = m.group()
-            result = 0
-            for term in number.split('+'):
-                term_val = 1
-                for num in term.split('*'):
-                    term_val *= int(num)
-                result += term_val
-            return str(result)
+    def _translate_num(self, m):
+        number = m.group()
+        result = 0
+        for term in number.split('+'):
+            term_val = 1
+            for num in term.split('*'):
+                term_val *= int(num)
+            result += term_val
+        return str(result)
 
+    def grtranslate(self, text):
         text = encodeMeCab(text)
         text = decodeMeCab(self._grtagger.parse(text)).strip('\r\n')
-        text = self.re_numbers.sub(translate_num, text)
+        text = self.re_numbers.sub(self._translate_num, text)
         return text
+
+    def grtranslateNBest(self, text, n):
+        text = encodeMeCab(text)
+        self._grtagger.parseNBestInit(text)
+        results = []
+        for i in range(n):
+            t = decodeMeCab(self._grtagger.next()).strip('\r\n')
+            t = self.re_numbers.sub(self._translate_num, t)
+            results.append(t)
+        return results
 
 def main():
     g = GrongishTranslator(dic='grongishdic')
@@ -210,6 +220,7 @@ def main():
         gr = g.translate(text)
         print(gr)
         print(g.grtranslate(gr))
+        print(g.grtranslateNBest(gr, 5))
         print("")
 
 if __name__=='__main__':
