@@ -1,5 +1,0 @@
-config-charset = utf8
-bos-feature = BOS/EOS
-node-format-ime = %H
-unk-format-ime = %M
-eos-format-ime  = \n

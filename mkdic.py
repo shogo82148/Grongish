@@ -6,7 +6,9 @@ import sys
 import jcconv
 from GrongishTranslator import GrongishTranslator
 import re
-INF = 10000
+import glob
+import zlib
+INVALID_COST = 30000
 LIMIT = 10000
 
 class Matrix(object):
@@ -15,25 +17,28 @@ class Matrix(object):
         self.right_size = 0
         self.left_size = 0
 
-    def open(self, filename):
-        f = codecs.open(filename, 'r', 'utf-8')
-        mat = {}
-        for line in f:
-            columns = line.strip().split()
-            if len(columns)<3:
-                self.right_size = int(columns[0])
-                self.left_size = int(columns[1])
-                continue
-            right_id = int(columns[0])
-            left_id = int(columns[1])
-            cost = int(columns[2])
-            if cost<INF:
-                mat[(right_id, left_id)] = cost
-        self.mat = mat
+    def open_mozc(self, filename):
+        f = open(filename, 'r')
+        content = zlib.decompress(f.read()).split('\n')
         f.close()
 
+        mat = {}
+        pos_size = int(content[0]) # The first line contains the matrix column/row size.
+        for array_index, line in enumerate(content[1:]):
+            if line == '':
+                continue
+            cost = int(line)
+            rid = array_index / pos_size
+            lid = array_index % pos_size
+            if rid == 0 and lid == 0:
+                cost = 0
+            mat[(rid, lid)] = cost
+        self.mat = mat
+        self.right_size = pos_size
+        self.left_size = pos_size
+
     def get(self, right_id, left_id):
-        return self.mat.get((right_id, left_id), INF)
+        return self.mat.get((right_id, left_id), INVALID_COST)
 
     def set(self, right_id, left_id, cost):
         self.mat[(right_id, left_id)] = cost
@@ -46,12 +51,14 @@ class Matrix(object):
         f = codecs.open(filename, 'w', 'utf-8')
         f.write('%d %d\n' % (self.right_size, self.left_size))
         for right_id in xrange(self.right_size):
+            print >>sys.stderr, '%d/%d...\r' % (right_id, self.right_size),
             for left_id in xrange(self.left_size):
                 f.write('%d %d %d\n' % (right_id, left_id, self.get(right_id, left_id)))
         f.close()
+        print >>sys.stderr, ''
 
 class FeatureIDs(list):
-    def open(self, filename):
+    def open_mozc(self, filename):
         f = codecs.open(filename, 'r', 'utf-8')
         for line in f:
             columns = line.strip().split()
@@ -61,12 +68,12 @@ class FeatureIDs(list):
         f = codecs.open(filename, 'w', 'utf-8')
         for i, feature in enumerate(self):
             f.write('%d %s\n' % (i, feature))
-        
+
 class WordDic(list):
-    def open(self, filename):
+    def read_mozc(self, filename):
         f = codecs.open(filename, 'r', 'utf-8')
         for line in f:
-            word = line.rstrip('\r\n').split(',', 5)
+            word = line.rstrip('\r\n').split('\t', 5)
             surface = word[0]
             left_id = int(word[1])
             right_id = int(word[2])
@@ -76,23 +83,24 @@ class WordDic(list):
 
 class Dic(object):
     re_start = re.compile(u'([ア-ン][ャュョァィゥェォ]?)')
-    def __init__(self, dic):
-        print >>sys.stderr, 'Loading csv...'
+    def open_mozc_dic(self, dic):
         self.words = WordDic()
-        self.words.open(dic + '/dic.csv')
-        
+        for word_file in sorted(glob.glob(dic + '/dictionary[0-9][0-9].txt')):
+            print >>sys.stderr, 'Loading ' + word_file
+            self.words.read_mozc(word_file)
+
         print >>sys.stderr, 'Loading matrix...'
         self.mtx = Matrix()
-        self.mtx.open(dic + '/matrix.def')
-        
+        self.mtx.open_mozc(dic + '/connection.deflate')
+
         print >>sys.stderr, 'Loading right-id...'
         self.right_ids = FeatureIDs()
-        self.right_ids.open(dic + '/right-id.def')
-        
+        self.right_ids.open_mozc(dic + '/id.def')
+
         print >>sys.stderr, 'Loading left-id...'
         self.left_ids = FeatureIDs()
-        self.left_ids.open(dic + '/left-id.def')
-    
+        self.left_ids.open_mozc(dic + '/id.def')
+
     def to_grongish(self):
         g = GrongishTranslator()
         words = self.words
@@ -100,13 +108,10 @@ class Dic(object):
         print >>sys.stderr, 'To Grongish...'
         for i in xrange(len(words)):
             if i%1000==0:
-                print >>sys.stderr, '%d...\r' % i,
+                print >>sys.stderr, '%d/%d...\r' % (i, len(words)),
             word = words[i]
             feature = right_ids[word[2]].split(',')
-            yomi = jcconv.hira2kata(word[0])
-            yomi = g._translate_node(word[-1], yomi, feature)
-            yomi = g.re_long.sub(u'\\1\\1', yomi)
-            yomi = g.re_ltu.sub(u'\\1\\1', yomi)
+            yomi = g.translate(word[-1])
             word[0] = yomi
 
     def build_new_ids(self):
@@ -164,7 +169,7 @@ class Dic(object):
         for right_id, left_ids in possible_pair.iteritems():
             next_chars = set()
             for left_id in left_ids:
-                if mtx.get(right_id, left_id)>=INF:
+                if mtx.get(right_id, left_id)>=INVALID_COST:
                     continue
                 for next_char in first_char[left_id]:
                     next_chars.add(next_char)
@@ -181,7 +186,7 @@ class Dic(object):
         self.possible_pair = possible_pair
         self.ltu_left_ids = ltu_left_ids
         self.ltu_right_ids = ltu_right_ids
-    
+
     def build_new_matrix(self):
         print >>sys.stderr, 'Bulding new matrix'
         possible_pair = self.possible_pair
@@ -206,7 +211,7 @@ class Dic(object):
 
         print >>sys.stderr, 'Saving right-id...'
         self.right_ids.write(dic + '/right-id.def')
-        
+
         print >>sys.stderr, 'Saving left-id...'
         self.left_ids.write(dic + '/left-id.def')
 
@@ -214,6 +219,8 @@ class Dic(object):
         ltu_left_ids = self.ltu_left_ids
         ltu_right_ids = self.ltu_right_ids
         for surface, left_id, right_id, cost, feature in self.words:
+            if surface == ",":
+                continue
             if left_id in ltu_left_ids:
                 m = self.re_start.match(surface)
                 if m:
@@ -226,12 +233,13 @@ class Dic(object):
                 f.write('%s,%d,%d,%d,%s\n' % (surface, left_id, right_id, cost, feature))
 
 def main():
-    dic = Dic('skk-dic')
+    dic = Dic()
+    dic.open_mozc_dic('./mozc/src/data/dictionary_oss')
     dic.to_grongish()
     dic.build_new_ids()
     dic.build_new_matrix()
     dic.write('grongishdic')
-     
+
 if __name__=='__main__':
     main()
 

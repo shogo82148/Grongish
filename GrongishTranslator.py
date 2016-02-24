@@ -60,6 +60,15 @@ class GrongishTranslator(object):
                 return u'パ'
             elif yomi==u'ヲ':
                 return u'ゾ'
+        if features[0]==u'連体詞':
+            if yomi==u'コノ':
+                return u'ボン'
+            elif yomi==u'ソノ':
+                return u'ゴン'
+            elif yomi==u'アノ':
+                return u'ガン'
+            elif yomi==u'ドノ':
+                return u'ゾン'
         if yomi in (u'グロンギ', u'クウガ', u'リント', u'ゲゲル',
                     u'ゲリゼギバスゲゲル', u'グセパ', u'バグンダダ', u'ザギバスゲゲル'):
             return yomi
@@ -78,6 +87,8 @@ class GrongishTranslator(object):
                 n2 += n1 * digit
                 n1 = 0
             else:
+                if n1==0 and n2==0:
+                    n1=1
                 n3 += (n1+n2)*digit
                 n1, n2 = 0, 0
         return n1+n2+n3
@@ -165,9 +176,12 @@ def main():
         u'やってやる',
         u'これはクウガのベルト',
         u'本当に裏切ったんですか！？',
-        u'0,1,2,3,4,5,6,7,8,9,10,20,300',
+        u'0 1 2 3 4 5 6 7 8 9 10 20 300',
         u'日本語とグロンギ語の相互翻訳機能を追加しました。ぜひ、試してみてください。',
         u'ボットさんはグロンギ語から日本語への翻訳もサポートします',
+        u'この日遊戯を再開する',
+        u'ゲームの資格を持つのは誰だ',
+        u'ゲームを始めるぞ',
         ]
     for text in test_text:
         print text
