@@ -1,9 +1,31 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 import MeCab
-import jcconv
-import itertools
+import jctconv
 import re
+
+try:
+    # python 2.x
+    from itertools import izip
+except ImportError:
+    # python 3.x
+    izip = zip
+
+try:
+    unicode # python 2.x
+    def encodeMeCab(text):
+        if isinstance(text, unicode):
+            text = text.encode('utf-8')
+        return text
+    def decodeMeCab(text):
+        return text.decode('utf-8')
+except:
+    # With python 3.x, SWIG converts str into char* automatically.
+    # so we do not convert them.
+    def encodeMeCab(text):
+        return text
+    def decodeMeCab(text):
+        return text
 
 _ja_dic = (u'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモワ'
            u'ダヂヅデドバビブベボパピプペポラリルレロ')
@@ -28,9 +50,11 @@ class GrongishTranslator(object):
     re_ltu = re.compile(u'ッ(.[ャュョァィゥェォ]?)')
     def __init__(self, tagger=None, dic=None):
         self._tagger = tagger or MeCab.Tagger()
+        self._tagger.parse("") # XXX: avoid MeCab bug
         self._grtagger = None
         if dic:
             self._grtagger = MeCab.Tagger('-d %s -Oime' % dic)
+            self._grtagger.parse("")
         self._dic = self._mk_dic()
         self._num_dic = dict([(ch, i%10) for i,ch in enumerate(_numbers)])
         self._num_dic[u'十'] = 10
@@ -43,7 +67,7 @@ class GrongishTranslator(object):
 
     def _mk_dic(self):
         dic = {}
-        for ja, gr in itertools.izip(_ja_dic, _gr_dic):
+        for ja, gr in izip(_ja_dic, _gr_dic):
             dic[ja] = gr
         dic[u'ヤ'] = u'ジャ'
         dic[u'ユ'] = u'ジュ'
@@ -114,25 +138,24 @@ class GrongishTranslator(object):
         return u'ド'.join(reversed(result))
 
     def translate(self, text):
-        if isinstance(text, unicode):
-            text = text.encode('utf-8')
+        text = encodeMeCab(text)
         node = self._tagger.parseToNode(text)
         result = []
         while node:
             if node.stat>=2:
                 node = node.next
                 continue
-            surface = node.surface.decode(u'utf-8')
+            surface = decodeMeCab(node.surface)
             yomi = surface
-            features = node.feature.decode('utf-8').split(',')
+            features = decodeMeCab(node.feature).split(',')
             if node.stat==0:
                 yomi = features[7]
-            yomi = jcconv.hira2kata(yomi)
+            yomi = jctconv.hira2kata(yomi)
             if features[1]==u'数':
                 number = u''
                 while True:
-                    surface = node.surface.decode(u'utf-8')
-                    features = node.feature.decode('utf-8').split(',')
+                    surface = decodeMeCab(node.surface)
+                    features = decodeMeCab(node.feature).split(',')
                     if features[1]!=u'数':
                         break
                     number += surface
@@ -161,9 +184,8 @@ class GrongishTranslator(object):
                 result += term_val
             return str(result)
 
-        if isinstance(text, unicode):
-            text = text.encode('utf-8')
-        text = self._grtagger.parse(text).decode('utf-8').strip('\r\n')
+        text = encodeMeCab(text)
+        text = decodeMeCab(self._grtagger.parse(text)).strip('\r\n')
         text = self.re_numbers.sub(translate_num, text)
         return text
 
@@ -184,11 +206,11 @@ def main():
         u'ゲームを始めるぞ',
         ]
     for text in test_text:
-        print text
+        print(text)
         gr = g.translate(text)
-        print gr
-        print g.grtranslate(gr)
-        print
+        print(gr)
+        print(g.grtranslate(gr))
+        print("")
 
 if __name__=='__main__':
     main()
