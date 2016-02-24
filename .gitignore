@@ -2,3 +2,5 @@
 *.bin
 *.dic
 *.pyc
+/Grongish.tar
+/Grongish/
