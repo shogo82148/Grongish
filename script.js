@@ -31,14 +31,10 @@
             var lang = xhr.response.lang;
             if (lang == "grongish") {
                 lang_grongish.checked = true;
-                lang_ja.checked = false;
-                translated_lang_grongish.checked = false;
                 translated_lang_ja.checked = true;
             } else {
-                lang_grongish.checked = false;
                 lang_ja.checked = true;
                 translated_lang_grongish.checked = true;
-                translated_lang_ja.checked = false;
             }
             translate.disabled = false;
         });
@@ -48,4 +44,15 @@
         });
         xhr.send(data);
     });
+
+    function sync_lang() {
+        if (lang_grongish.checked) {
+            translated_lang_ja.checked = true;
+        } else {
+            translated_lang_grongish.checked = true;
+        }
+    }
+
+    lang_grongish.addEventListener('change', sync_lang);
+    lang_ja.addEventListener('change', sync_lang);
 })();
