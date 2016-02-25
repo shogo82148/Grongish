@@ -36,7 +36,7 @@ def translateTo(request):
             "lang": "ja",
         }
         if retranslation:
-            result["retransled"] = g.grtranslateNBest(translated, nbest)
+            result["retranslated"] = g.grtranslateNBest(translated, nbest)
     elif fromLang == "grongish":
         translated = g.grtranslateNBest(text, nbest)
         result = {
@@ -45,7 +45,7 @@ def translateTo(request):
             "lang": "grongish",
         }
         if retranslation:
-            result["retranslated"] = g.translate(translated[0])
+            result["retranslated"] = [g.translate(translated[0])]
     else:
         result = {
             "error": "unsuppoted language"
