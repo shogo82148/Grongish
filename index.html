@@ -1,12 +1,52 @@
 <html>
   <header>
     <title>グロンギ語翻訳</title>
+    <link rel="stylesheet" type="text/css" href="./style.css">
   </header>
   <body>
-    <textarea id="original"></textarea>
-    <textarea id="translated"></textarea>
-    <textarea id="retranslated"></textarea>
-    <input id="translate" type="button" value="翻訳">
+
+    <div id="leftbox">
+      <div id="original-box">
+	<div class="box-header">
+	  <input type="radio" name="lang" id="lang-grongish" checked><label for="lang-grongish">グ</label>
+	  <input type="radio" name="lang" id="lang-ja"><label for="lang-ja">日</label>
+	  <input type="checkbox" id="auto-detect" checked><label for="auto-detect">言語自動判定</label>
+	</div>
+	<div class="box-inner">
+	  <div class="resizable-textarea">
+	    <textarea id="original" rows="4" placeholder="翻訳したい文章"></textarea>
+	  </div>
+	</div>
+      </div>
+      <div id="retranslated-box">
+	<div class="box-header">
+	  再翻訳
+	</div>
+	<div class="box-inner">
+	  <textarea id="retranslated" rows="4"></textarea>
+	</div>
+      </div>
+    </div>
+
+    <div id="rightbox">
+      <div id="translated-box">
+	<div class="box-header">
+	  <input type="radio" name="translated-lang" id="translated-lang-ja" checked><label>日</label>
+	  <input type="radio" name="translated-lang" id="translated-lang-grongish"><label>グ</label>
+	  &nbsp;
+	</div>
+	<div class="box-inner">
+	  <textarea id="translated" rows="13"></textarea>
+	</div>
+      </div>
+    </div>
+
+    <div id="centerbox">
+      <div class="arrow-right">&gt;</div>
+      <input id="translate" type="button" value="翻訳">
+      <label><input type="checkbox" checked>再翻訳</label>
+      <div class="arrow-left">&lt;</div>
+    </div>
     <script src="./script.js"></script>
   </body>
 </html>
