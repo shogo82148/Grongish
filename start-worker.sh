@@ -28,7 +28,7 @@ if [[ -n "${SERVER_STARTER_PORT-}" ]]; then
 fi
 
 # start daemon
-droot run --root $CONTAINER_DIR --user app --group app /bin/bash -c "cd /Grongish && exec gunicorn -w 2 server:application" &
+droot run --root $CONTAINER_DIR --user app --group app --copy-files /bin/bash -c "cd /Grongish && exec gunicorn -w 2 server:application" &
 CHILD=$!
 
 # Forward SIGTERM and SIGHUP to child
