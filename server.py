@@ -57,7 +57,7 @@ def translateFrom(request):
     return {"result": g.grtranslateNBest(text, nbest)}
 
 config = Configurator()
-config.add_route('translate', '/api/grongish/translate')
+config.add_route('translate', '/translate')
 config.add_view(translateTo, route_name='translate', renderer='json')
 application = config.make_wsgi_app()
 
