@@ -4,7 +4,13 @@ body {
     color: #111111;
 }
 
+#container {
+    display: table;
+    width: 100%;
+}
+
 #leftbox {
+    display: table-cell;
     float: left;
     width: 50%;
 }
@@ -48,6 +54,7 @@ body {
 }
 
 #rightbox {
+    display: table-cell;
     float: right;
     width: 50%;
 }
