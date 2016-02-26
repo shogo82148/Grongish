@@ -3,7 +3,7 @@
 
 import codecs
 import sys
-import jcconv
+import jctconv
 from GrongishTranslator import GrongishTranslator
 import re
 import glob
@@ -187,6 +187,19 @@ class Dic(object):
         self.ltu_left_ids = ltu_left_ids
         self.ltu_right_ids = ltu_right_ids
 
+    def build_numbers(self):
+        "+ * 等の演算子を定義"
+        left_id = len(self.left_ids)
+        self.left_ids.append(u"名詞,数,演算子,*,*,*,*")
+        right_id = len(self.right_ids)
+        self.right_ids.append(u"名詞,数,演算子,*,*,*,*")
+        self.words.append([u"ド", left_id, right_id, 1, u'+'])
+        self.words.append([u"グ", left_id, right_id, 1, u'*'])
+        for number_id in [1935, 1936]: # 数字の品詞ID
+            cost = self.mtx.get(number_id, number_id)
+            self.mtx.set(right_id, number_id, cost)
+            self. mtx.set(number_id, left_id, cost)
+
     def build_new_matrix(self):
         print >>sys.stderr, 'Bulding new matrix'
         possible_pair = self.possible_pair
@@ -237,6 +250,7 @@ def main():
     dic.open_mozc_dic('./mozc/src/data/dictionary_oss')
     dic.to_grongish()
     dic.build_new_ids()
+    dic.build_numbers()
     dic.build_new_matrix()
     dic.write('grongishdic')
 
