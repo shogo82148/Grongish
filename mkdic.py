@@ -110,8 +110,18 @@ class Dic(object):
             if i%1000==0:
                 print >>sys.stderr, '%d/%d...\r' % (i, len(words)),
             word = words[i]
+            if len(word[-1]) == 1 and self.right_ids[word[1]].split(",")[0] == u"助詞":
+                if word[-1]==u'が':
+                    yomi = u'グ'
+                elif word[-1]==u'の':
+                    yomi = u'ン'
+                elif word[-1]==u'は':
+                    yomi = u'パ'
+                elif word[-1]==u'を':
+                    yomi = u'ゾ'
+            else:
+                yomi = g.translate(word[-1])
             feature = right_ids[word[2]].split(',')
-            yomi = g.translate(word[-1])
             word[0] = yomi
 
     def build_new_ids(self):
