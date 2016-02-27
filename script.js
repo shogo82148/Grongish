@@ -10,7 +10,7 @@
     var translated_lang_ja = document.getElementById('translated-lang-ja');
     var share_button = document.getElementById('twitter-share-button');
 
-    original.value = location.hash.replace(/^#/, "");
+    original.value = decodeURIComponent(location.hash.replace(/^#/, ""));
 
     translate.addEventListener('click', function() {
         translate.disabled = true;
