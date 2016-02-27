@@ -10,14 +10,13 @@
     var translated_lang_ja = document.getElementById('translated-lang-ja');
     var share_button = document.getElementById('twitter-share-button');
 
-    original.value = location.hash;
+    original.value = location.hash.replace(/^#/, "");
 
     translate.addEventListener('click', function() {
         translate.disabled = true;
         var xhr = new XMLHttpRequest();
         var data = new FormData();
         data.append('text', original.value);
-        location.hash = original.value;
         data.append('retranslation', 'true');
         if (auto_detect.checked) {
             data.append('from', 'auto');
@@ -32,7 +31,21 @@
         xhr.addEventListener('load', function() {
             translated.value = xhr.response.translated[0];
             retranslated.value = xhr.response.retranslated[0];
-            share_button.dataset.text = xhr.response.retranslated[0];
+
+            // create share button
+            while (share_button.firstChild) {
+                share_button.removeChild(share_button.firstChild);
+            }
+            var link = document.createElement('a');
+            link.href = "https://twitter.com/share";
+            link.className = "twitter-share-button";
+            link.innerHTML = "Tweet";
+            link.dataset.url = location.protocol + "//" + location.host + location.pathname + "#" + xhr.response.translated[0];
+            link.dataset.text = xhr.response.translated[0];
+            link.dataset.hashtags = "グロンギ語語翻訳機";
+            share_button.appendChild(link);
+            twttr.widgets.load();
+
             var lang = xhr.response.lang;
             if (lang == "grongish") {
                 lang_grongish.checked = true;
