@@ -40,7 +40,7 @@
             link.href = "https://twitter.com/share";
             link.className = "twitter-share-button";
             link.innerHTML = "Tweet";
-            link.dataset.url = location.protocol + "//" + location.host + location.pathname + "#" + xhr.response.translated[0];
+            link.dataset.url = location.protocol + "//" + location.host + location.pathname + "#" + encodeURIComponent(xhr.response.translated[0]);
             link.dataset.text = xhr.response.translated[0];
             link.dataset.hashtags = "グロンギ語語翻訳機";
             share_button.appendChild(link);
