@@ -26,7 +26,7 @@
             data.append('from', 'ja');
         }
 
-        xhr.open('POST', 'http://shogo82148.com/api/grongish/translate', true);
+        xhr.open('POST', 'https://shogo82148.com/api/grongish/translate', true);
         xhr.responseType = 'json';
         xhr.addEventListener('load', function() {
             translated.value = xhr.response.translated[0];
