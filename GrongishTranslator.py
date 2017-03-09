@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
+from __future__ import print_function
+import re
 import MeCab
 import jctconv
-import re
 
 try:
     # python 2.x
@@ -56,7 +57,7 @@ class GrongishTranslator(object):
             self._grtagger = MeCab.Tagger('-d %s -Oime' % dic)
             self._grtagger.parse("")
         self._dic = self._mk_dic()
-        self._num_dic = dict([(ch, i%10) for i,ch in enumerate(_numbers)])
+        self._num_dic = dict([(ch, i%10) for i, ch in enumerate(_numbers)])
         self._num_dic[u'十'] = 10
         self._num_dic[u'百'] = 100
         self._num_dic[u'千'] = 1000
@@ -75,23 +76,23 @@ class GrongishTranslator(object):
         return dic
 
     def _translate_node(self, surface, yomi, features):
-        if features[0]==u'助詞':
-            if yomi==u'ガ':
+        if features[0] == u'助詞':
+            if yomi == u'ガ':
                 return u'グ'
-            elif yomi==u'ノ':
+            elif yomi == u'ノ':
                 return u'ン'
-            elif yomi==u'ハ':
+            elif yomi == u'ハ':
                 return u'パ'
-            elif yomi==u'ヲ':
+            elif yomi == u'ヲ':
                 return u'ゾ'
-        if features[0]==u'連体詞':
-            if yomi==u'コノ':
+        if features[0] == u'連体詞':
+            if yomi == u'コノ':
                 return u'ボン'
-            elif yomi==u'ソノ':
+            elif yomi == u'ソノ':
                 return u'ゴン'
-            elif yomi==u'アノ':
+            elif yomi == u'アノ':
                 return u'ガン'
-            elif yomi==u'ドノ':
+            elif yomi == u'ドノ':
                 return u'ゾン'
         if yomi in (u'グロンギ', u'クウガ', u'リント', u'ゲゲル',
                     u'ゲリゼギバスゲゲル', u'グセパ', u'バグンダダ', u'ザギバスゲゲル'):
@@ -100,39 +101,39 @@ class GrongishTranslator(object):
 
     def _ja2int(self, number):
         """日本語の数詞を数値に変換"""
-        n1, n2, n3 = 0,0,0
+        n1, n2, n3 = 0, 0, 0
         for c in number:
             digit = self._num_dic.get(c, 0)
-            if digit<10:
-                n1 = n1*10 + digit
-            elif digit<10000:
-                if n1==0:
-                    n1=1
+            if digit < 10:
+                n1 = n1 * 10 + digit
+            elif digit < 10000:
+                if n1 == 0:
+                    n1 = 1
                 n2 += n1 * digit
                 n1 = 0
             else:
-                if n1==0 and n2==0:
-                    n1=1
+                if n1 == 0 and n2 == 0:
+                    n1 = 1
                 n3 += (n1+n2)*digit
                 n1, n2 = 0, 0
         return n1+n2+n3
 
     def _translate_int(self, number):
         """数字をグロンギ語に変換"""
-        if number<=9:
+        if number <= 9:
             return _gr_numbers[number]
 
         result = []
         prefix = []
-        while number!=0:
+        while number != 0:
             fig = number % 9
             number = int(number/9)
-            if fig==1:
-                if len(prefix)==0:
+            if fig == 1:
+                if len(prefix) == 0:
                     result.append(_gr_numbers[1])
                 else:
                     result.append(u'グ'.join(prefix))
-            elif fig>1:
+            elif fig > 1:
                 result.append(u'グ'.join(prefix+[_gr_numbers[fig]]))
             prefix.append(_gr_numbers[9])
         return u'ド'.join(reversed(result))
@@ -142,21 +143,21 @@ class GrongishTranslator(object):
         node = self._tagger.parseToNode(text)
         result = []
         while node:
-            if node.stat>=2:
+            if node.stat >= 2:
                 node = node.next
                 continue
             surface = decodeMeCab(node.surface)
             yomi = surface
             features = decodeMeCab(node.feature).split(',')
-            if node.stat==0:
+            if node.stat == 0:
                 yomi = features[7]
             yomi = jctconv.hira2kata(yomi)
-            if features[1]==u'数':
+            if features[1] == u'数':
                 number = u''
                 while True:
                     surface = decodeMeCab(node.surface)
                     features = decodeMeCab(node.feature).split(',')
-                    if features[1]!=u'数':
+                    if features[1] != u'数':
                         break
                     number += surface
                     node = node.next
