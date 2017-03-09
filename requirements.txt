@@ -1,0 +1,2 @@
+jctconv==0.1.2
+mecab-python==0.996
