@@ -262,7 +262,7 @@ def main():
     dic.build_new_ids()
     dic.build_numbers()
     dic.build_new_matrix()
-    dic.write('grongishdic')
+    dic.write('fromgrongishdic')
 
 if __name__=='__main__':
     main()
