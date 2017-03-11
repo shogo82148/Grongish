@@ -1,7 +1,7 @@
 MECAB_DICT_INDEX=$(shell mecab-config --libexecdir)/mecab-dict-index
 PYTHON=python
 
-.PHONY: all
+.PHONY: all test
 all: Grongish.tar.gz
 
 fromgrongishdic/sys.dic: fromgrongishdic/word.csv fromgrongishdic/char.def fromgrongishdic/unk.def fromgrongishdic/dic.csv
@@ -22,3 +22,6 @@ Grongish.tar.gz: fromgrongishdic/sys.dic togrongishdic/sys.dic GrongishTranslato
 	mkdir -p Grongish/fromgrongishdic
 	cp togrongishdic/dicrc togrongishdic/char.bin togrongishdic/char.bin togrongishdic/matrix.bin togrongishdic/sys.dic togrongishdic/unk.dic Grongish/togrongishdic/
 	tar zcvf Grongish.tar.gz Grongish
+
+test:
+	python3 -m unittest tests.test_all
