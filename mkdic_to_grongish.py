@@ -30,9 +30,9 @@ def to_grongish(csvinput, csvoutput):
     ipadicの読み情報をグロンギ語に書き換える
     """
     fin = open(csvinput, 'r', encoding='eucjp', newline='')
-    reader = csv.reader(fin, dialect='unix')
+    reader = csv.reader(fin)
     fout = open(csvoutput, 'w', encoding='utf-8', newline='')
-    writer = csv.writer(fout)
+    writer = csv.writer(fout, lineterminator="\n")
     re_long = re.compile(u'(.[ャュョァィゥェォ]?)ー')
 
     for row in reader:

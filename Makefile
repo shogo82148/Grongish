@@ -23,5 +23,5 @@ Grongish.tar.gz: fromgrongishdic/sys.dic togrongishdic/sys.dic GrongishTranslato
 	cp togrongishdic/dicrc togrongishdic/char.bin togrongishdic/char.bin togrongishdic/matrix.bin togrongishdic/sys.dic togrongishdic/unk.dic Grongish/togrongishdic/
 	tar zcvf Grongish.tar.gz Grongish
 
-test:
+test: togrongishdic/sys.dic
 	python3 -m unittest tests.test_all
