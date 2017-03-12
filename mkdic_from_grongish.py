@@ -1,13 +1,16 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
+"""
+グロンギ語から日本語への変換辞書を作成する
+"""
+
 import codecs
 import sys
-import jctconv
-from GrongishTranslator import GrongishTranslator
-import re
 import glob
 import zlib
+import re
+from GrongishTranslator import GrongishTranslator
 INVALID_COST = 30000
 LIMIT = 10000
 
@@ -18,8 +21,8 @@ class Matrix(object):
         self.left_size = 0
 
     def open_mozc(self, filename):
-        f = open(filename, 'r')
-        content = zlib.decompress(f.read()).split('\n')
+        f = open(filename, 'rb')
+        content = zlib.decompress(f.read()).decode('utf-8').split('\n')
         f.close()
 
         mat = {}
@@ -50,12 +53,12 @@ class Matrix(object):
     def write(self, filename):
         f = codecs.open(filename, 'w', 'utf-8')
         f.write('%d %d\n' % (self.right_size, self.left_size))
-        for right_id in xrange(self.right_size):
-            print >>sys.stderr, '%d/%d...\r' % (right_id, self.right_size),
-            for left_id in xrange(self.left_size):
+        for right_id in range(self.right_size):
+            print('%d/%d...\r' % (right_id, self.right_size), file=sys.stderr, end='')
+            for left_id in range(self.left_size):
                 f.write('%d %d %d\n' % (right_id, left_id, self.get(right_id, left_id)))
         f.close()
-        print >>sys.stderr, ''
+        print('', file=sys.stderr)
 
 class FeatureIDs(list):
     def open_mozc(self, filename):
@@ -86,29 +89,29 @@ class Dic(object):
     def open_mozc_dic(self, dic):
         self.words = WordDic()
         for word_file in sorted(glob.glob(dic + '/dictionary[0-9][0-9].txt')):
-            print >>sys.stderr, 'Loading ' + word_file
+            print('Loading ' + word_file, file=sys.stderr)
             self.words.read_mozc(word_file)
 
-        print >>sys.stderr, 'Loading matrix...'
+        print('Loading matrix...', file=sys.stderr)
         self.mtx = Matrix()
         self.mtx.open_mozc(dic + '/connection.deflate')
 
-        print >>sys.stderr, 'Loading right-id...'
+        print('Loading right-id...', file=sys.stderr)
         self.right_ids = FeatureIDs()
         self.right_ids.open_mozc(dic + '/id.def')
 
-        print >>sys.stderr, 'Loading left-id...'
+        print('Loading left-id...', file=sys.stderr)
         self.left_ids = FeatureIDs()
         self.left_ids.open_mozc(dic + '/id.def')
 
     def to_grongish(self):
-        g = GrongishTranslator()
+        g = GrongishTranslator(todic='togrongishdic')
         words = self.words
         right_ids = self.right_ids
-        print >>sys.stderr, 'To Grongish...'
-        for i in xrange(len(words)):
+        print('To Grongish...', file=sys.stderr)
+        for i in range(len(words)):
             if i%1000==0:
-                print >>sys.stderr, '%d/%d...\r' % (i, len(words)),
+                print('%d/%d...\r' % (i, len(words)), file=sys.stderr, end='')
             word = words[i]
             if len(word[-1]) == 1 and self.right_ids[word[1]].split(",")[0] == u"助詞":
                 if word[-1]==u'が':
@@ -125,7 +128,7 @@ class Dic(object):
             word[0] = yomi
 
     def build_new_ids(self):
-        print >>sys.stderr, 'Making new ids...'
+        print('Making new ids...', file=sys.stderr)
         endsltu_right_ids = set()
         first_char = [set() for i in self.left_ids]
         re_start = self.re_start
@@ -145,7 +148,7 @@ class Dic(object):
         possible_pair = {}
         for right_id in endsltu_right_ids:
             l = []
-            for left_id in xrange(mtx.left_size):
+            for left_id in range(mtx.left_size):
                 if mtx.get(right_id, left_id)>=LIMIT:
                     continue
                 next_left_ids.add(left_id)
@@ -176,7 +179,7 @@ class Dic(object):
 
         #新しいright_idを作成
         ltu_right_ids = {}
-        for right_id, left_ids in possible_pair.iteritems():
+        for right_id, left_ids in possible_pair.items():
             next_chars = set()
             for left_id in left_ids:
                 if mtx.get(right_id, left_id)>=INVALID_COST:
@@ -211,7 +214,7 @@ class Dic(object):
             self. mtx.set(number_id, left_id, cost)
 
     def build_new_matrix(self):
-        print >>sys.stderr, 'Bulding new matrix'
+        print('Bulding new matrix', file=sys.stderr)
         possible_pair = self.possible_pair
         ltu_left_ids = self.ltu_left_ids
         ltu_right_ids = self.ltu_right_ids
@@ -221,21 +224,21 @@ class Dic(object):
             if left_id in ltu_left_ids:
                 ids = ltu_left_ids[left_id]
                 if right_id in ltu_right_ids:
-                    for next_char, new_right_id in ltu_right_ids[right_id].iteritems():
+                    for next_char, new_right_id in ltu_right_ids[right_id].items():
                         if next_char not in ids:
                             continue
                         mtx.set(new_right_id, ids[next_char], cost)
-                for next_char, new_left_id in ids.iteritems():
+                for next_char, new_left_id in ids.items():
                     mtx.set(right_id, new_left_id, cost)
 
     def write(self, dic):
-        print >>sys.stderr, 'Saving matrix...'
+        print('Saving matrix...', file=sys.stderr)
         self.mtx.write(dic + '/matrix.def')
 
-        print >>sys.stderr, 'Saving right-id...'
+        print('Saving right-id...', file=sys.stderr)
         self.right_ids.write(dic + '/right-id.def')
 
-        print >>sys.stderr, 'Saving left-id...'
+        print('Saving left-id...', file=sys.stderr)
         self.left_ids.write(dic + '/left-id.def')
 
         f = codecs.open(dic + '/dic.csv', 'w', 'utf-8')
@@ -250,7 +253,7 @@ class Dic(object):
                     left_id = ltu_left_ids[left_id][m.group()]
             if surface.endswith(u'ッ'):
                 surface = surface[0:-1]
-                for next_char, new_right_id in ltu_right_ids[right_id].iteritems():
+                for next_char, new_right_id in ltu_right_ids[right_id].items():
                     f.write('%s%s,%d,%d,%d,%s\n' % (surface, next_char, left_id, new_right_id, cost, feature))
             else:
                 f.write('%s,%d,%d,%d,%s\n' % (surface, left_id, right_id, cost, feature))
