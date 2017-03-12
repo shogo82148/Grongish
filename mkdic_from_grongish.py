@@ -15,15 +15,20 @@ INVALID_COST = 30000
 LIMIT = 10000
 
 class Matrix(object):
+    """
+    隣接コスト
+    """
     def __init__(self):
         self.mat = {}
         self.right_size = 0
         self.left_size = 0
 
     def open_mozc(self, filename):
-        f = open(filename, 'rb')
-        content = zlib.decompress(f.read()).decode('utf-8').split('\n')
-        f.close()
+        """
+        mozcの辞書の隣接コストファイルを開く
+        """
+        with open(filename, 'rb') as fmat:
+            content = zlib.decompress(fmat.read()).decode('utf-8').split('\n')
 
         mat = {}
         pos_size = int(content[0]) # The first line contains the matrix column/row size.
@@ -41,41 +46,66 @@ class Matrix(object):
         self.left_size = pos_size
 
     def get(self, right_id, left_id):
+        """
+        right_idとleft_idの隣接コストを取得する
+        """
         return self.mat.get((right_id, left_id), INVALID_COST)
 
     def set(self, right_id, left_id, cost):
+        """
+        right_idとleft_idの隣接コストを設定する
+        """
         self.mat[(right_id, left_id)] = cost
-        if right_id>=self.right_size:
+        if right_id >= self.right_size:
             self.right_size = right_id+1
-        if left_id>=self.left_size:
+        if left_id >= self.left_size:
             self.left_size = left_id+1
 
     def write(self, filename):
-        f = codecs.open(filename, 'w', 'utf-8')
-        f.write('%d %d\n' % (self.right_size, self.left_size))
+        """
+        filenameに隣接コストを書き込む
+        """
+        fmat = codecs.open(filename, 'w', 'utf-8')
+        fmat.write('%d %d\n' % (self.right_size, self.left_size))
         for right_id in range(self.right_size):
             print('%d/%d...\r' % (right_id, self.right_size), file=sys.stderr, end='')
             for left_id in range(self.left_size):
-                f.write('%d %d %d\n' % (right_id, left_id, self.get(right_id, left_id)))
-        f.close()
+                fmat.write('%d %d %d\n' % (right_id, left_id, self.get(right_id, left_id)))
+        fmat.close()
         print('', file=sys.stderr)
 
 class FeatureIDs(list):
+    """
+    素性IDリスト
+    """
     def open_mozc(self, filename):
-        f = codecs.open(filename, 'r', 'utf-8')
-        for line in f:
+        """
+        mozcの素性IDリストを開く
+        """
+        fids = codecs.open(filename, 'r', 'utf-8')
+        for line in fids:
             columns = line.strip().split()
             self.append(columns[1])
+        fids.close()
 
     def write(self, filename):
-        f = codecs.open(filename, 'w', 'utf-8')
+        """
+        filenameに素性IDリストを保存する
+        """
+        fids = codecs.open(filename, 'w', 'utf-8')
         for i, feature in enumerate(self):
-            f.write('%d %s\n' % (i, feature))
+            fids.write('%d %s\n' % (i, feature))
 
 class WordDic(list):
+    """
+    単語辞書
+    """
     def read_mozc(self, filename):
-        f = codecs.open(filename, 'r', 'utf-8')
-        for line in f:
+        """
+        mozcの単語辞書を開く
+        """
+        fdic = codecs.open(filename, 'r', 'utf-8')
+        for line in fdic:
             word = line.rstrip('\r\n').split('\t', 5)
             surface = word[0]
             left_id = int(word[1])
@@ -85,46 +115,61 @@ class WordDic(list):
             self.append([surface, left_id, right_id, cost, feature])
 
 class Dic(object):
+    """
+    グロンギ語から日本語への変換辞書
+    """
     re_start = re.compile(u'([ア-ン][ャュョァィゥェォ]?)')
-    def open_mozc_dic(self, dic):
+
+    def __init__(self):
         self.words = WordDic()
+        self.mtx = Matrix()
+        self.right_ids = FeatureIDs()
+        self.left_ids = FeatureIDs()
+
+    def open_mozc_dic(self, dic):
+        """
+        mozcの辞書を開く
+        """
+
         for word_file in sorted(glob.glob(dic + '/dictionary[0-9][0-9].txt')):
             print('Loading ' + word_file, file=sys.stderr)
             self.words.read_mozc(word_file)
 
         print('Loading matrix...', file=sys.stderr)
-        self.mtx = Matrix()
         self.mtx.open_mozc(dic + '/connection.deflate')
 
         print('Loading right-id...', file=sys.stderr)
-        self.right_ids = FeatureIDs()
         self.right_ids.open_mozc(dic + '/id.def')
 
         print('Loading left-id...', file=sys.stderr)
-        self.left_ids = FeatureIDs()
         self.left_ids.open_mozc(dic + '/id.def')
 
     def to_grongish(self):
-        g = GrongishTranslator(todic='togrongishdic')
+        """
+        mozcの辞書のエントリをグロンギ語に変換する
+        """
+        grongish = GrongishTranslator(todic='togrongishdic')
         words = self.words
         right_ids = self.right_ids
         print('To Grongish...', file=sys.stderr)
-        for i in range(len(words)):
-            if i%1000==0:
+        for i, word in words:
+            if i%1000 == 0:
                 print('%d/%d...\r' % (i, len(words)), file=sys.stderr, end='')
-            word = words[i]
+
             if len(word[-1]) == 1 and self.right_ids[word[1]].split(",")[0] == u"助詞":
-                if word[-1]==u'が':
+                # 助詞の特殊処理
+                if word[-1] == u'が':
                     yomi = u'グ'
-                elif word[-1]==u'の':
+                elif word[-1] == u'の':
                     yomi = u'ン'
-                elif word[-1]==u'は':
+                elif word[-1] == u'は':
                     yomi = u'パ'
-                elif word[-1]==u'を':
+                elif word[-1] == u'を':
                     yomi = u'ゾ'
             else:
-                yomi = g.translate(word[-1])
-            feature = right_ids[word[2]].split(',')
+                # 複数単語で構成されている場合があるので、表層表現からグロンギ語の発音を推定する
+                yomi = grongish.translate(word[-1])
+
             word[0] = yomi
 
     def build_new_ids(self):
@@ -254,11 +299,17 @@ class Dic(object):
             if surface.endswith(u'ッ'):
                 surface = surface[0:-1]
                 for next_char, new_right_id in ltu_right_ids[right_id].items():
-                    f.write('%s%s,%d,%d,%d,%s\n' % (surface, next_char, left_id, new_right_id, cost, feature))
+                    f.write('%s%s,%d,%d,%d,%s\n' % (
+                        surface, next_char, left_id, new_right_id, cost, feature
+                    ))
             else:
                 f.write('%s,%d,%d,%d,%s\n' % (surface, left_id, right_id, cost, feature))
 
 def main():
+    """
+    mozcの辞書を元に、
+    グロンギ語から日本語への変換辞書を作成する
+    """
     dic = Dic()
     dic.open_mozc_dic('./mozc/src/data/dictionary_oss')
     dic.to_grongish()
@@ -267,6 +318,6 @@ def main():
     dic.build_new_matrix()
     dic.write('fromgrongishdic')
 
-if __name__=='__main__':
+if __name__ == '__main__':
     main()
 

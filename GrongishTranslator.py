@@ -3,7 +3,6 @@
 from __future__ import print_function
 import re
 import MeCab
-import jctconv
 
 try:
     # python 2.x
