@@ -10,3 +10,5 @@ before_install:
 - export CGO_CFLAGS="-I`mecab-config --inc-dir`"
 install:
 - pip install mecab-python3
+script:
+- make test
