@@ -125,6 +125,9 @@ class Dic(object):
         self.mtx = Matrix()
         self.right_ids = FeatureIDs()
         self.left_ids = FeatureIDs()
+        self.possible_pair = None
+        self.ltu_left_ids = None
+        self.ltu_right_ids = None
 
     def open_mozc_dic(self, dic):
         """
@@ -150,7 +153,6 @@ class Dic(object):
         """
         grongish = GrongishTranslator(todic='togrongishdic')
         words = self.words
-        right_ids = self.right_ids
         print('To Grongish...', file=sys.stderr)
         for i, word in words:
             if i%1000 == 0:
@@ -173,73 +175,76 @@ class Dic(object):
             word[0] = yomi
 
     def build_new_ids(self):
+        """
+        品詞IDの追加を行う
+        """
         print('Making new ids...', file=sys.stderr)
         endsltu_right_ids = set()
         first_char = [set() for i in self.left_ids]
         re_start = self.re_start
-        for surface, left_id, right_id, cost, feature in self.words:
+        for surface, left_id, right_id, _, feature in self.words:
             #「っ」で終わる単語のright-idを検索
             if surface.endswith(u'ッ'):
                 endsltu_right_ids.add(right_id)
 
             #left_idごとに先頭の文字を集計
-            m = re_start.match(surface)
-            if m:
-                first_char[left_id].add(m.group())
+            match = re_start.match(surface)
+            if match:
+                first_char[left_id].add(match.group())
 
         #隣接可能なidの組みを列挙
         mtx = self.mtx
         next_left_ids = set()
         possible_pair = {}
         for right_id in endsltu_right_ids:
-            l = []
+            left_ids = []
             for left_id in range(mtx.left_size):
-                if mtx.get(right_id, left_id)>=LIMIT:
+                if mtx.get(right_id, left_id) >= LIMIT:
                     continue
                 next_left_ids.add(left_id)
-                l.append(left_id)
-            possible_pair[right_id] = l
+                left_ids.append(left_id)
+            possible_pair[right_id] = left_ids
 
         #新しいleft_idを作成
         ltu_left_ids = {}
         for left_id in next_left_ids:
             next_chars = list(first_char[left_id])
             next_chars.sort()
-            d = {}
+            dic = {}
             feature = self.left_ids[left_id]
             if feature.startswith(u'名詞'):
                 #Left-idが名詞の時は新しいidを作らない
                 for next_char in next_chars:
-                    d[next_char] = left_id
-            elif len(next_chars)>0:
+                    dic[next_char] = left_id
+            elif len(next_chars) > 0:
                 self.left_ids[left_id] = feature + ',' + next_chars[0]
-                d[next_chars[0]] = left_id
+                dic[next_chars[0]] = left_id
                 for next_char in next_chars[1:]:
                     new_id = len(self.left_ids)
                     self.left_ids.append(feature + ',' + next_char)
-                    d[next_char] = new_id
+                    dic[next_char] = new_id
             else:
-                d[''] = left_id
-            ltu_left_ids[left_id] = d
+                dic[''] = left_id
+            ltu_left_ids[left_id] = dic
 
         #新しいright_idを作成
         ltu_right_ids = {}
         for right_id, left_ids in possible_pair.items():
             next_chars = set()
             for left_id in left_ids:
-                if mtx.get(right_id, left_id)>=INVALID_COST:
+                if mtx.get(right_id, left_id) >= INVALID_COST:
                     continue
                 for next_char in first_char[left_id]:
                     next_chars.add(next_char)
-            d = {}
+            dic = {}
             feature = self.right_ids[right_id]
             next_chars = list(next_chars)
             next_chars.sort()
             for next_char in next_chars:
                 new_id = len(self.right_ids)
                 self.right_ids.append(feature + ',' + next_char)
-                d[next_char] = new_id
-            ltu_right_ids[right_id] = d
+                dic[next_char] = new_id
+            ltu_right_ids[right_id] = dic
 
         self.possible_pair = possible_pair
         self.ltu_left_ids = ltu_left_ids
@@ -259,12 +264,14 @@ class Dic(object):
             self. mtx.set(number_id, left_id, cost)
 
     def build_new_matrix(self):
+        """
+        隣接行列の構築
+        """
         print('Bulding new matrix', file=sys.stderr)
-        possible_pair = self.possible_pair
         ltu_left_ids = self.ltu_left_ids
         ltu_right_ids = self.ltu_right_ids
         mtx = self.mtx
-        for right_id, left_id in mtx.mat.keys():
+        for right_id, left_id in mtx.mat:
             cost = mtx.get(right_id, left_id)
             if left_id in ltu_left_ids:
                 ids = ltu_left_ids[left_id]
@@ -277,6 +284,9 @@ class Dic(object):
                     mtx.set(right_id, new_left_id, cost)
 
     def write(self, dic):
+        """
+        辞書をファイルに保存する
+        """
         print('Saving matrix...', file=sys.stderr)
         self.mtx.write(dic + '/matrix.def')
 
@@ -286,24 +296,25 @@ class Dic(object):
         print('Saving left-id...', file=sys.stderr)
         self.left_ids.write(dic + '/left-id.def')
 
-        f = codecs.open(dic + '/dic.csv', 'w', 'utf-8')
+        fdic = codecs.open(dic + '/dic.csv', 'w', 'utf-8')
         ltu_left_ids = self.ltu_left_ids
         ltu_right_ids = self.ltu_right_ids
         for surface, left_id, right_id, cost, feature in self.words:
             if surface == ",":
                 continue
             if left_id in ltu_left_ids:
-                m = self.re_start.match(surface)
-                if m:
-                    left_id = ltu_left_ids[left_id][m.group()]
+                match = self.re_start.match(surface)
+                if match:
+                    left_id = ltu_left_ids[left_id][match.group()]
             if surface.endswith(u'ッ'):
                 surface = surface[0:-1]
                 for next_char, new_right_id in ltu_right_ids[right_id].items():
-                    f.write('%s%s,%d,%d,%d,%s\n' % (
+                    fdic.write('%s%s,%d,%d,%d,%s\n' % (
                         surface, next_char, left_id, new_right_id, cost, feature
                     ))
             else:
-                f.write('%s,%d,%d,%d,%s\n' % (surface, left_id, right_id, cost, feature))
+                fdic.write('%s,%d,%d,%d,%s\n' % (surface, left_id, right_id, cost, feature))
+        fdic.close()
 
 def main():
     """
@@ -320,4 +331,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
