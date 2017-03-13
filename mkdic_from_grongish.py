@@ -192,16 +192,18 @@ class Dic(object):
         endsltu_right_ids = set()
         first_char = [set() for i in self.left_ids]
         re_start = self.re_start
+        words_count = 0
         for surface, left_id, right_id, _, feature in self.words:
             #「っ」で終わる単語のright-idを検索
             if surface.endswith(u'ッ'):
                 endsltu_right_ids.add(right_id)
+                words_count += 1
 
             #left_idごとに先頭の文字を集計
             match = re_start.match(surface)
             if match:
                 first_char[left_id].add(match.group())
-        print(len(endsltu_right_ids), "words detected.", file=sys.stderr)
+        print(words_count, "words", len(endsltu_right_ids), "features detected.", file=sys.stderr)
 
         #隣接可能なidの組みを列挙
         mtx = self.mtx
