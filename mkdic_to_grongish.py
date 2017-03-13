@@ -86,11 +86,29 @@ def write_fallback_dic(outfile):
     fout = open(outfile, 'w', encoding='utf-8', newline='')
     writer = csv.writer(fout, lineterminator="\n")
     for from_char, to_char in zip(ja_list, gr_list):
-        writer.writerow([from_char, 10, 10, 8000, to_char])
+        writer.writerow([from_char, 10, 10, 7000, to_char])
     for from_char, to_char in zip(ja_hira_list, gr_list):
-        writer.writerow([from_char, 10, 10, 8000, to_char])
-    writer.writerow(["ッ", 10, 10, 8000, "ッ"])
-    writer.writerow(["っ", 10, 10, 8000, "ッ"])
+        writer.writerow([from_char, 10, 10, 7000, to_char])
+    for from_char, to_char in zip(ja_list, gr_list):
+        writer.writerow([from_char + "ー", 10, 10, 6500, to_char + to_char])
+    for from_char, to_char in zip(ja_hira_list, gr_list):
+        writer.writerow([from_char + "ー", 10, 10, 6500, to_char + to_char])
+    writer.writerow(["ヤ", 10, 10, 7000, "ジャ"])
+    writer.writerow(["ユ", 10, 10, 7000, "ジュ"])
+    writer.writerow(["ヨ", 10, 10, 7000, "ジョ"])
+    writer.writerow(["や", 10, 10, 7000, "ジャ"])
+    writer.writerow(["ゆ", 10, 10, 7000, "ジュ"])
+    writer.writerow(["よ", 10, 10, 7000, "ジョ"])
+    writer.writerow(["ヤー", 10, 10, 6500, "ジャジャ"])
+    writer.writerow(["ユー", 10, 10, 6500, "ジュジュ"])
+    writer.writerow(["ヨー", 10, 10, 6500, "ジョジョ"])
+    writer.writerow(["やー", 10, 10, 6500, "ジャジャ"])
+    writer.writerow(["ゆー", 10, 10, 6500, "ジュジュ"])
+    writer.writerow(["よー", 10, 10, 6500, "ジョジョ"])
+
+    writer.writerow(["ー", 10, 10, 10000, "ー"])
+    writer.writerow(["っ", 10, 10, 10000, "ッ"])
+    writer.writerow(["ッ", 10, 10, 10000, "ッ"])
     fout.close()
 
 def main():
