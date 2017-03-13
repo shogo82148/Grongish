@@ -75,6 +75,24 @@ def convert_utf8(infile, outfile):
     fin.close()
     fout.close()
 
+def write_fallback_dic(outfile):
+    """
+    辞書に項目がなかった場合のフォールバック
+    """
+    ja_hira_list = 'あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもわだぢづでどばびぶべぼぱぴぷぺぽらりるれろ'
+    ja_list = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモワダヂヅデドバビブベボパピプペポラリルレロ'
+    gr_list = 'ガギグゲゴバビブベボガギグゲゴダヂヅデドバビブベボザジズゼゾラリルレロパザジズゼゾダヂヅデドマミムメモサシスセソ'
+
+    fout = open(outfile, 'w', encoding='utf-8', newline='')
+    writer = csv.writer(fout, lineterminator="\n")
+    for from_char, to_char in zip(ja_list, gr_list):
+        writer.writerow([from_char, 10, 10, 8000, to_char])
+    for from_char, to_char in zip(ja_hira_list, gr_list):
+        writer.writerow([from_char, 10, 10, 8000, to_char])
+    writer.writerow(["ッ", 10, 10, 8000, "ッ"])
+    writer.writerow(["っ", 10, 10, 8000, "ッ"])
+    fout.close()
+
 def main():
     """
     メインの処理
@@ -85,6 +103,7 @@ def main():
             continue # 数字は別途処理
         csvoutput = "togrongishdic/" + basename
         to_grongish(csvinput, csvoutput)
+    write_fallback_dic("togrongishdic/fallback.csv")
     convert_utf8("./mecab/mecab-ipadic/left-id.def", "togrongishdic/left-id.def")
     convert_utf8("./mecab/mecab-ipadic/right-id.def", "togrongishdic/right-id.def")
     convert_utf8("./mecab/mecab-ipadic/matrix.def", "togrongishdic/matrix.def")
