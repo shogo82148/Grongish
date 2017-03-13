@@ -201,6 +201,7 @@ class Dic(object):
             match = re_start.match(surface)
             if match:
                 first_char[left_id].add(match.group())
+        print(len(endsltu_right_ids), "words detected.", file=sys.stderr)
 
         #隣接可能なidの組みを列挙
         mtx = self.mtx
@@ -214,9 +215,11 @@ class Dic(object):
                 next_left_ids.add(left_id)
                 left_ids.append(left_id)
             possible_pair[right_id] = left_ids
+        print(len(next_left_ids), "left_ids neet to extend.", file=sys.stderr)
 
         #新しいleft_idを作成
         ltu_left_ids = {}
+        new_left_ids_count = 0
         for left_id in next_left_ids:
             next_chars = list(first_char[left_id])
             next_chars.sort()
@@ -231,14 +234,17 @@ class Dic(object):
                 dic[next_chars[0]] = left_id
                 for next_char in next_chars[1:]:
                     new_id = len(self.left_ids)
+                    new_left_ids_count += 1
                     self.left_ids.append(feature + ',GrongishNextChar:' + next_char)
                     dic[next_char] = new_id
             else:
                 dic[''] = left_id
             ltu_left_ids[left_id] = dic
+        print(new_left_ids_count, "left_ids were created.", file=sys.stderr)
 
         #新しいright_idを作成
         ltu_right_ids = {}
+        new_right_ids_count = 0
         for right_id, left_ids in possible_pair.items():
             next_chars = set()
             for left_id in left_ids:
@@ -252,9 +258,11 @@ class Dic(object):
             next_chars.sort()
             for next_char in next_chars:
                 new_id = len(self.right_ids)
+                new_right_ids_count += 1
                 self.right_ids.append(feature + ',GrongishNextChar:' + next_char)
                 dic[next_char] = new_id
             ltu_right_ids[right_id] = dic
+        print(new_right_ids_count, "right_ids were created.", file=sys.stderr)
 
         self.possible_pair = possible_pair
         self.ltu_left_ids = ltu_left_ids
