@@ -47,7 +47,7 @@ def to_grongish(csvinput, csvoutput):
                 yomi = 'パ'
             elif yomi == 'ヲ':
                 yomi = 'ゾ'
-        if row[0] == '連体詞':
+        if row[4] == '連体詞':
             if yomi == 'コノ':
                 yomi = 'ボン'
             elif yomi == 'ソノ':
