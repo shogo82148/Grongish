@@ -154,11 +154,12 @@ class Dic(object):
         grongish = GrongishTranslator(todic='togrongishdic')
         words = self.words
         print('To Grongish...', file=sys.stderr)
-        for i, word in words:
+        for i, word in enumerate(words):
             if i%1000 == 0:
                 print('%d/%d...\r' % (i, len(words)), file=sys.stderr, end='')
 
-            if len(word[-1]) == 1 and self.right_ids[word[1]].split(",")[0] == u"助詞":
+            feature = self.right_ids[word[1]].split(",")
+            if len(word[-1]) == 1 and feature[0] == u"助詞":
                 # 助詞の特殊処理
                 if word[-1] == u'が':
                     yomi = u'グ'
@@ -168,6 +169,15 @@ class Dic(object):
                     yomi = u'パ'
                 elif word[-1] == u'を':
                     yomi = u'ゾ'
+            elif len(word[-1]) == 1 and feature[0] == u"連体詞":
+                if word[-1] == 'この':
+                    yomi = 'ボン'
+                elif word[-1] == 'その':
+                    yomi = 'ゴン'
+                elif word[-1] == 'あの':
+                    yomi = 'ガン'
+                elif word[-1] == 'どの':
+                    yomi = 'ゾン'
             else:
                 # 複数単語で構成されている場合があるので、表層表現からグロンギ語の発音を推定する
                 yomi = grongish.translate(word[-1])
