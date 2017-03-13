@@ -222,16 +222,16 @@ class Dic(object):
             next_chars.sort()
             dic = {}
             feature = self.left_ids[left_id]
-            if feature.startswith(u'名詞'):
-                #Left-idが名詞の時は新しいidを作らない
+            if not feature.startswith(u'動詞') and not feature.startswith(u'形容詞'):
+                # 動詞・形容詞以外は組み合わせが多すぎて辞書が巨大になるので、left_idの作成は行わない
                 for next_char in next_chars:
                     dic[next_char] = left_id
             elif len(next_chars) > 0:
-                self.left_ids[left_id] = feature + ',' + next_chars[0]
+                self.left_ids[left_id] = feature + ',GrongishNextChar:' + next_chars[0]
                 dic[next_chars[0]] = left_id
                 for next_char in next_chars[1:]:
                     new_id = len(self.left_ids)
-                    self.left_ids.append(feature + ',' + next_char)
+                    self.left_ids.append(feature + ',GrongishNextChar:' + next_char)
                     dic[next_char] = new_id
             else:
                 dic[''] = left_id
@@ -252,7 +252,7 @@ class Dic(object):
             next_chars.sort()
             for next_char in next_chars:
                 new_id = len(self.right_ids)
-                self.right_ids.append(feature + ',' + next_char)
+                self.right_ids.append(feature + ',GrongishNextChar:' + next_char)
                 dic[next_char] = new_id
             ltu_right_ids[right_id] = dic
 
