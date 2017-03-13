@@ -12,7 +12,7 @@ fromgrongishdic/dic.csv: mkdic_from_grongish.py togrongishdic/sys.dic
 
 togrongishdic/sys.dic: mkdic_to_grongish.py togrongishdic/Noun.number.csv
 	$(PYTHON) mkdic_to_grongish.py
-	cd togrongishdic && $(MECAB_DICT_INDEX)
+	cd togrongishdic && $(MECAB_DICT_INDEX) -f utf8 -t utf8
 
 Grongish.tar.gz: fromgrongishdic/sys.dic togrongishdic/sys.dic GrongishTranslator.py
 	rm -rf Gronfish
