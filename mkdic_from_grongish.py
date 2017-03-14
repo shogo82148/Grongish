@@ -36,7 +36,7 @@ class Matrix(object):
             if line == '':
                 continue
             cost = int(line)
-            rid = array_index / pos_size
+            rid = array_index // pos_size
             lid = array_index % pos_size
             if rid == 0 and lid == 0:
                 cost = 0
@@ -291,7 +291,8 @@ class Dic(object):
         ltu_left_ids = self.ltu_left_ids
         ltu_right_ids = self.ltu_right_ids
         mtx = self.mtx
-        for right_id, left_id in mtx.mat:
+        keys = list(mtx.mat.keys())
+        for right_id, left_id in keys:
             cost = mtx.get(right_id, left_id)
             if left_id in ltu_left_ids:
                 ids = ltu_left_ids[left_id]
