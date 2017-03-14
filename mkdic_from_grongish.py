@@ -190,7 +190,7 @@ class Dic(object):
         """
         print('Making new ids...', file=sys.stderr)
         endsltu_right_ids = set()
-        first_char = [set() for i in self.left_ids]
+        first_char = [{} for i in self.left_ids]
         re_start = self.re_start
         words_count = 0
         for surface, left_id, right_id, _, feature in self.words:
@@ -202,7 +202,7 @@ class Dic(object):
             #left_idごとに先頭の文字を集計
             match = re_start.match(surface)
             if match:
-                first_char[left_id].add(match.group())
+                first_char[left_id][match.group()] = first_char[left_id].get(match.group(), 0) + 1
         print(words_count, "words", len(endsltu_right_ids), "features detected.", file=sys.stderr)
 
         #隣接可能なidの組みを列挙
@@ -223,7 +223,14 @@ class Dic(object):
         ltu_left_ids = {}
         new_left_ids_count = 0
         for left_id in next_left_ids:
-            next_chars = list(first_char[left_id])
+            chars = first_char[left_id]
+            next_chars = list(chars.keys())
+            if len(next_chars) > 8:
+                next_chars.sort(
+                    key=lambda next_char, ch=chars: ch.get(next_char, 0),
+                    reverse=True,
+                )
+                next_chars = next_chars[:8]
             next_chars.sort()
             dic = {}
             feature = self.left_ids[left_id]
@@ -250,8 +257,8 @@ class Dic(object):
         for right_id, left_ids in possible_pair.items():
             next_chars = set()
             left_ids.sort(key=lambda left_id: mtx.get(right_id, left_id))
-            if len(left_ids) > 10:
-                left_ids = left_ids[:10]
+            if len(left_ids) > 8:
+                left_ids = left_ids[:8]
             for left_id in left_ids:
                 if mtx.get(right_id, left_id) >= INVALID_COST:
                     break
@@ -329,6 +336,8 @@ class Dic(object):
             if left_id in ltu_left_ids:
                 match = self.re_start.match(surface)
                 if match:
+                    if match.group() not in ltu_left_ids[left_id]:
+                        continue
                     left_id = ltu_left_ids[left_id][match.group()]
             if surface.endswith(u'ッ'):
                 surface = surface[0:-1]
