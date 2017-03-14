@@ -12,7 +12,7 @@ import zlib
 import re
 from GrongishTranslator import GrongishTranslator
 INVALID_COST = 30000
-LIMIT = 10000
+LIMIT = 5000
 
 class Matrix(object):
     """
@@ -249,9 +249,12 @@ class Dic(object):
         new_right_ids_count = 0
         for right_id, left_ids in possible_pair.items():
             next_chars = set()
+            left_ids.sort(key=lambda left_id: mtx.get(right_id, left_id))
+            if len(left_ids) > 10:
+                left_ids = left_ids[:10]
             for left_id in left_ids:
                 if mtx.get(right_id, left_id) >= INVALID_COST:
-                    continue
+                    break
                 for next_char in first_char[left_id]:
                     next_chars.add(next_char)
             dic = {}
