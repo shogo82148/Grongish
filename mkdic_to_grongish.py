@@ -38,26 +38,26 @@ def to_grongish(csvinput, csvoutput):
     for row in reader:
         newrow = row[:4] # 表層表現,左文脈ID,右文脈ID,コスト
         yomi = row[11]
+        yomi = ''.join((DIC.get(ch, ch) for ch in yomi))
+        yomi = re_long.sub(u'\\1\\1', yomi) # 長音の変換
         if row[4] == '助詞':
             if yomi == 'ガ':
                 yomi = 'グ'
-            elif yomi == 'ノ':
+            elif yomi == 'ボ': #'ノ'
                 yomi = 'ン'
-            elif yomi == 'ハ':
+            elif yomi == 'ザ': #'ハ'
                 yomi = 'パ'
             elif yomi == 'ヲ':
                 yomi = 'ゾ'
         if row[4] == '連体詞':
-            if yomi == 'コノ':
+            if yomi == 'ボボ': # 'コノ'
                 yomi = 'ボン'
-            elif yomi == 'ソノ':
+            elif yomi == 'ゴボ': # 'ソノ'
                 yomi = 'ゴン'
-            elif yomi == 'アノ':
+            elif yomi == 'ガボ': # 'アノ'
                 yomi = 'ガン'
-            elif yomi == 'ドノ':
+            elif yomi == 'ゾボ': # 'ドノ'
                 yomi = 'ゾン'
-        yomi = ''.join((DIC.get(ch, ch) for ch in yomi))
-        yomi = re_long.sub(u'\\1\\1', yomi) # 長音の変換
         # 拗音についてはMeCabでの解析後にやる
         writer.writerow(newrow + [yomi])
 

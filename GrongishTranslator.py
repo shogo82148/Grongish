@@ -47,6 +47,7 @@ _gr_numbers = (
 
 class GrongishTranslator(object):
     re_ltu = re.compile(u'ッ(.[ャュョァィゥェォ]?)')
+    re_long = re.compile(u'(.[ャュョァィゥェォ]?)ー')
     def __init__(self, fromdic=None, todic=None):
         self._totagger = None
         if todic:
@@ -104,6 +105,7 @@ class GrongishTranslator(object):
         text = encodeMeCab(text)
         text = decodeMeCab(self._totagger.parse(text)).strip('\r\n')
         text = self.re_ltu.sub(u'\\1\\1', text)
+        text = self.re_long.sub(u'\\1\\1', text) # 長音の変換
         return text
 
     re_numbers = re.compile(r'[0-9]+([+*][0-9]+)*')
@@ -122,29 +124,3 @@ class GrongishTranslator(object):
         text = decodeMeCab(self._grtagger.parse(text)).strip('\r\n')
         text = self.re_numbers.sub(self._translate_num, text)
         return text
-
-def main():
-    g = GrongishTranslator(dic='grongishdic')
-    test_text = [
-        u'殺してやる！',
-        u'命拾いしたな',
-        u'プレイヤー',
-        u'やってやる',
-        u'これはクウガのベルト',
-        u'本当に裏切ったんですか！？',
-        u'0 1 2 3 4 5 6 7 8 9 10 20 300',
-        u'日本語とグロンギ語の相互翻訳機能を追加しました。ぜひ、試してみてください。',
-        u'ボットさんはグロンギ語から日本語への翻訳もサポートします',
-        u'この日遊戯を再開する',
-        u'ゲームの資格を持つのは誰だ',
-        u'ゲームを始めるぞ',
-        ]
-    for text in test_text:
-        print(text)
-        gr = g.translate(text)
-        print(gr)
-        print(g.grtranslate(gr))
-        print("")
-
-if __name__=='__main__':
-    main()
