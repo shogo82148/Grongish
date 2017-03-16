@@ -27,33 +27,31 @@ except:
     def decodeMeCab(text):
         return text
 
-_ja_dic = (u'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモワ'
-           u'ダヂヅデドバビブベボパピプペポラリルレロ')
-_gr_dic = (u'ガギグゲゴバビブベボガギグゲゴダヂヅデドバビブベボザジズゼゾラリルレロパ'
-           u'ザジズゼゾダヂヅデドマミムメモサシスセソ')
-_numbers = u'0123456789０１２３４５６７８９〇一二三四五六七八九零壱弐参'
-_gr_numbers = (
-    u'ゼゼソ',
-    u'パパン',
-    u'ドググ',
-    u'グシギ',
-    u'ズゴゴ',
-    u'ズガギ',
-    u'ギブグ',
-    u'ゲズン',
-    u'ゲギド',
-    u'バギン',
-)
-
 class GrongishTranslator(object):
     re_ltu = re.compile(u'ッ(.[ャュョァィゥェォ]?)')
     re_long = re.compile(u'(.[ャュョァィゥェォ]?)ー')
+    _ja_dic = u'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモワダヂヅデドバビブベボパピプペポラリルレロ'
+    _gr_dic = u'ガギグゲゴバビブベボガギグゲゴダヂヅデドバビブベボザジズゼゾラリルレロパザジズゼゾダヂヅデドマミムメモサシスセソ'
+    _numbers = u'0123456789０１２３４５６７８９〇一二三四五六七八九零壱弐参'
+    _gr_numbers = (
+        u'ゼゼソ',
+        u'パパン',
+        u'ドググ',
+        u'グシギ',
+        u'ズゴゴ',
+        u'ズガギ',
+        u'ギブグ',
+        u'ゲズン',
+        u'ゲギド',
+        u'バギン',
+    )
+
     def __init__(self, fromdic=None, todic=None):
         self._totagger = None
         if todic:
             self._totagger = MeCab.Tagger('-d%s -r%s/dicrc -Oyomi' % (todic, todic))
 
-        self._num_dic = dict([(ch, i%10) for i, ch in enumerate(_numbers)])
+        self._num_dic = dict([(ch, i%10) for i, ch in enumerate(self._numbers)])
         self._num_dic[u'十'] = 10
         self._num_dic[u'百'] = 100
         self._num_dic[u'千'] = 1000
@@ -64,27 +62,30 @@ class GrongishTranslator(object):
 
     def _ja2int(self, number):
         """日本語の数詞を数値に変換"""
-        n1, n2, n3 = 0, 0, 0
-        for c in number:
-            digit = self._num_dic.get(c, 0)
+        result = 0
+        digits = 0 # "1234"のようにな数字の連続
+        thousands = 0 # 十, 百, 千 など
+        for char in number:
+            digit = self._num_dic.get(char, 0)
             if digit < 10:
-                n1 = n1 * 10 + digit
+                digits = digits * 10 + digit
             elif digit < 10000:
-                if n1 == 0:
-                    n1 = 1
-                n2 += n1 * digit
-                n1 = 0
+                if digits == 0:
+                    digits = 1
+                thousands += digits * digit
+                digits = 0
             else:
-                if n1 == 0 and n2 == 0:
-                    n1 = 1
-                n3 += (n1+n2)*digit
-                n1, n2 = 0, 0
-        return n1+n2+n3
+                if digits == 0 and thousands == 0:
+                    digits = 1
+                result += (digits+thousands)*digit
+                digits = 0
+                thousands = 0
+        return result + thousands + digits
 
     def _translate_int(self, number):
         """数字をグロンギ語に変換"""
         if number <= 9:
-            return _gr_numbers[number]
+            return self._gr_numbers[number]
 
         result = []
         prefix = []
@@ -93,19 +94,23 @@ class GrongishTranslator(object):
             number = int(number/9)
             if fig == 1:
                 if len(prefix) == 0:
-                    result.append(_gr_numbers[1])
+                    result.append(self._gr_numbers[1])
                 else:
                     result.append(u'グ'.join(prefix))
             elif fig > 1:
-                result.append(u'グ'.join(prefix+[_gr_numbers[fig]]))
-            prefix.append(_gr_numbers[9])
+                result.append(u'グ'.join(prefix+[self._gr_numbers[fig]]))
+            prefix.append(self._gr_numbers[9])
         return u'ド'.join(reversed(result))
 
+    _re_ja_numbers = re.compile(u'[0123456789０１２３４５６７８９〇一二三四五六七八九零壱弐参十百千万億兆京]+')
     def translate(self, text):
+        "日本語からグロンギ語への翻訳を行う"
         text = encodeMeCab(text)
         text = decodeMeCab(self._totagger.parse(text)).strip('\r\n')
         text = self.re_ltu.sub(u'\\1\\1', text)
         text = self.re_long.sub(u'\\1\\1', text) # 長音の変換
+        text = self._re_ja_numbers.sub(
+            lambda m: self._translate_int(self._ja2int(m.group())), text)
         return text
 
     re_numbers = re.compile(r'[0-9]+([+*][0-9]+)*')
