@@ -169,7 +169,7 @@ class Dic(object):
                     yomi = u'パ'
                 elif word[-1] == u'を':
                     yomi = u'ゾ'
-            elif len(word[-1]) == 1 and feature[0] == u"連体詞":
+            elif len(word[-1]) == 2 and feature[0] == u"連体詞":
                 if word[-1] == 'この':
                     yomi = 'ボン'
                 elif word[-1] == 'その':
@@ -181,7 +181,6 @@ class Dic(object):
             else:
                 # 複数単語で構成されている場合があるので、表層表現からグロンギ語の発音を推定する
                 yomi = grongish.translate(word[-1])
-
             word[0] = yomi
 
     def build_new_ids(self):
@@ -336,9 +335,8 @@ class Dic(object):
             if left_id in ltu_left_ids:
                 match = self.re_start.match(surface)
                 if match:
-                    if match.group() not in ltu_left_ids[left_id]:
-                        continue
-                    left_id = ltu_left_ids[left_id][match.group()]
+                    if match.group() in ltu_left_ids[left_id]:
+                        left_id = ltu_left_ids[left_id][match.group()]
             if surface.endswith(u'ッ'):
                 surface = surface[0:-1]
                 for next_char, new_right_id in ltu_right_ids[right_id].items():

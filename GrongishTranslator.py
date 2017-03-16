@@ -28,6 +28,8 @@ except:
         return text
 
 class GrongishTranslator(object):
+    "グロンギ語-日本語の相互翻訳機"
+
     re_ltu = re.compile(u'ッ(.[ャュョァィゥェォ]?)')
     re_long = re.compile(u'(.[ャュョァィゥェォ]?)ー')
     _ja_dic = u'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモワダヂヅデドバビブベボパピプペポラリルレロ'
@@ -50,6 +52,9 @@ class GrongishTranslator(object):
         self._totagger = None
         if todic:
             self._totagger = MeCab.Tagger('-d%s -r%s/dicrc -Oyomi' % (todic, todic))
+        self._fromtagger = None
+        if fromdic:
+            self._fromtagger = MeCab.Tagger('-d%s -r%s/dicrc -Oyomi' % (fromdic, fromdic))
 
         self._num_dic = dict([(ch, i%10) for i, ch in enumerate(self._numbers)])
         self._num_dic[u'十'] = 10
@@ -113,19 +118,20 @@ class GrongishTranslator(object):
             lambda m: self._translate_int(self._ja2int(m.group())), text)
         return text
 
-    re_numbers = re.compile(r'[0-9]+([+*][0-9]+)*')
-    def _translate_num(self, m):
-        number = m.group()
+    re_numbers = re.compile(r'[0-9]+([+*✕][0-9]+)*')
+    def _translate_num(self, number):
+        "グロンギ語の数字を翻訳する"
         result = 0
         for term in number.split('+'):
             term_val = 1
-            for num in term.split('*'):
+            for num in term.split('✕'):
                 term_val *= int(num)
             result += term_val
         return str(result)
 
     def grtranslate(self, text):
+        "グロンギ語を日本語に翻訳する"
         text = encodeMeCab(text)
-        text = decodeMeCab(self._grtagger.parse(text)).strip('\r\n')
-        text = self.re_numbers.sub(self._translate_num, text)
+        text = decodeMeCab(self._fromtagger.parse(text)).strip('\r\n')
+        text = self.re_numbers.sub(lambda m: self._translate_num(m.group()), text)
         return text

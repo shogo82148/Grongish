@@ -12,7 +12,10 @@ class TestGrongish(unittest.TestCase):
     グロンギ語と日本語の相互変換のテスト
     """
 
-    grongish = GrongishTranslator.GrongishTranslator(todic='togrongishdic')
+    grongish = GrongishTranslator.GrongishTranslator(
+        todic='togrongishdic',
+        fromdic='fromgrongishdic'
+    )
 
     def test_ja2int(self):
         "日本語の数字表現を整数に変換するテスト"
@@ -67,3 +70,18 @@ class TestGrongish(unittest.TestCase):
         self.assertEqual(self.grongish.translate(u'ゲームの資格を持つのは誰だ'), u'ゲゲルンギバブゾロヅボパザセザ')
         self.assertEqual(self.grongish.translate(u'ゲームを始めるぞ'), u'ゲゲルゾザジレスゾ')
         self.assertEqual(self.grongish.translate(u'十八'), u'バギングドググ')
+
+    def test_from_grongish(self):
+        """
+        グロンギ語からの変換テスト
+        """
+        self.assertEqual(self.grongish.grtranslate(u'ボソギデジャス！'), u'殺してやる！')
+        self.assertEqual(self.grongish.grtranslate(u'ギボヂヂソギギダバ'), u'命拾いしたか') # 命拾いしたな
+        self.assertEqual(self.grongish.grtranslate(u'ムセギジャジャ'), u'プレイヤー')
+        self.assertEqual(self.grongish.grtranslate(u'ジャデデジャス'), u'やってやる')
+        self.assertEqual(self.grongish.grtranslate(u'ボセパクウガンデスド'), u'これはクウガのベルト')
+        self.assertEqual(self.grongish.grtranslate(u'ボンジジュグギゾガギバギグス'), u'この日重視を再開する') # この日遊戯を再開する
+        self.assertEqual(self.grongish.grtranslate(u'ゲゲルンギバブゾロヅボパザセザ'), u'ゲームの資格を持つ子は誰だ')
+        self.assertEqual(self.grongish.grtranslate(u'ゲゲルゾザジレスゾ'), u'ゲームを始める度') # ゲームを始めるぞ
+        self.assertEqual(self.grongish.grtranslate(u'バギンドドググ'), u'11')
+        self.assertEqual(self.grongish.grtranslate(u'バギングドググ'), u'18')
