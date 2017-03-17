@@ -12,7 +12,8 @@ import zlib
 import re
 from GrongishTranslator import GrongishTranslator
 INVALID_COST = 30000
-LIMIT = 5000
+LIMIT = 3000
+WORD_LIMIT = 8000
 
 class Matrix(object):
     """
@@ -112,6 +113,8 @@ class WordDic(list):
             right_id = int(word[2])
             cost = int(word[3])
             feature = word[4]
+            if cost > WORD_LIMIT:
+                continue
             self.append([surface, left_id, right_id, cost, feature])
 
 class Dic(object):
@@ -192,9 +195,17 @@ class Dic(object):
         first_char = [{} for i in self.left_ids]
         re_start = self.re_start
         words_count = 0
-        for surface, left_id, right_id, _, feature in self.words:
+        for word in self.words:
+            surface = word[0]
+            left_id = word[1]
+            right_id = word[2]
             #「っ」で終わる単語のright-idを検索
             if surface.endswith(u'ッ'):
+                feature = self.left_ids[left_id]
+                if feature.startswith(u'感動詞') or feature.startswith(u'接頭詞'):
+                    # 数が多いので無視
+                    word[0] = ''
+                    continue
                 endsltu_right_ids.add(right_id)
                 words_count += 1
 
@@ -224,12 +235,12 @@ class Dic(object):
         for left_id in next_left_ids:
             chars = first_char[left_id]
             next_chars = list(chars.keys())
-            if len(next_chars) > 8:
+            if len(next_chars) > 5:
                 next_chars.sort(
                     key=lambda next_char, ch=chars: ch.get(next_char, 0),
                     reverse=True,
                 )
-                next_chars = next_chars[:8]
+                next_chars = next_chars[:5]
             next_chars.sort()
             dic = {}
             feature = self.left_ids[left_id]
@@ -256,8 +267,8 @@ class Dic(object):
         for right_id, left_ids in possible_pair.items():
             next_chars = set()
             left_ids.sort(key=lambda left_id: mtx.get(right_id, left_id))
-            if len(left_ids) > 8:
-                left_ids = left_ids[:8]
+            if len(left_ids) > 5:
+                left_ids = left_ids[:5]
             for left_id in left_ids:
                 if mtx.get(right_id, left_id) >= INVALID_COST:
                     break
@@ -330,7 +341,7 @@ class Dic(object):
         ltu_left_ids = self.ltu_left_ids
         ltu_right_ids = self.ltu_right_ids
         for surface, left_id, right_id, cost, feature in self.words:
-            if surface == ",":
+            if surface == "" or surface == ",":
                 continue
             if left_id in ltu_left_ids:
                 match = self.re_start.match(surface)
