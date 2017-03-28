@@ -17,7 +17,6 @@
 
 - [MeCab](http://taku910.github.io/mecab/)
 - MeCabのPythonバインディング
-- [jcconv](https://pypi.python.org/pypi/jcconv)
 
 ## インストール
 
@@ -30,11 +29,14 @@ Pythonから見える場所にコピーしてご利用下さい。
 
 ``` bash
 $ git clone --recursive git@github.com:shogo82148/Grongish.git
-$ cd Grongish
-$ python mkdic.py
-$ cd grongishdic
-$ /usr/local/libexec/mecab/mecab-dict-index
+$ make all
 ```
 
 ## ライセンス
-COPYING を参照
+
+プログラム本体はMITライセンスで提供します。詳しくはLISENCEを参照してください。
+辞書ファイルにはIPAdicおよびOpen source mozc dictionaryを利用しています。
+それぞれのライセンスを確認してください。
+
+- [IPAdic](https://github.com/taku910/mecab/blob/32041d9504d11683ef80a6556173ff43f79d1268/mecab-ipadic/COPYING)
+- [Open source mozc dictionary](https://github.com/google/mozc/tree/57110764ff7c0e0d930432b3dc4fd5ffec8e2f8b/src/data/dictionary_oss)
