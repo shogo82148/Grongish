@@ -118,13 +118,13 @@ class GrongishTranslator(object):
             lambda m: self._translate_int(self._ja2int(m.group())), text)
         return text
 
-    re_numbers = re.compile(r'[0-9]+([+*✕][0-9]+)*')
+    re_numbers = re.compile(u'[0-9]+([+*✕][0-9]+)*')
     def _translate_num(self, number):
         "グロンギ語の数字を翻訳する"
         result = 0
-        for term in number.split('+'):
+        for term in number.split(u'+'):
             term_val = 1
-            for num in term.split('✕'):
+            for num in term.split(u'✕'):
                 term_val *= int(num)
             result += term_val
         return str(result)
