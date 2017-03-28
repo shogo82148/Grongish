@@ -1,0 +1,6 @@
+cost-factor = 800
+config-charset = utf8
+bos-feature = BOS/EOS
+node-format-yomi = %pS%f[0]
+unk-format-yomi = %M
+eos-format-yomi  = \n
