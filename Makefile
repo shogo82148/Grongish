@@ -31,6 +31,8 @@ Grongish.tar.gz:
 
 installgrongish: Grongish.tar.gz
 	tar zxvf Grongish.tar.gz
+	rm Grongish.tar.gz
+	rm -rf ./grongishdic
 	mv Grongish/* .
 	rmdir Grongish
 	export PATH=$(PREFIX)/bin:$$PATH; pip install -t $(PREFIX) -r requirements.txt
@@ -40,13 +42,13 @@ docker:
 	cp Makefile grongish-server/
 	cp requirements.txt grongish-server/
 	cp lambda_function.py grongish-server/
-	docker run -v "$(CURDIR)/grongish-server":/var/task lambci/lambda:build-python2.7 make install
+	docker run -v "$(CURDIR)/grongish-server":/var/task lambci/lambda:build-python3.6 make install
 
-zip:
+zip: docker
 	cd grongish-server && zip -9 -r ../grongish-server.zip . -x mecab-0.996\* -x mecab.tar.gz -x mecab-ipadic-2.7.0-20070801\* -x mecab-ipadic.tar.gz -x Grongish.tar.gz -x bin\* -x libexec\* -x share\*
 
-test:
-	docker run -v "$(PWD)/grongish-server":/var/task lambci/lambda:python2.7 lambda_function.lambda_handler '{"text":"お前のにおいがリントどもを誘ったのだ"}'
+test: docker
+	docker run -v "$(PWD)/grongish-server":/var/task lambci/lambda:python3.6 lambda_function.lambda_handler '{"text":"お前のにおいがリントどもを誘ったのだ"}'
 
 clean:
 	-rm -rf grongish-server
