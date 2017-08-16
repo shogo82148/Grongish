@@ -1,0 +1,79 @@
+---
+swagger: "2.0"
+info:
+  version: "2017-08-16T09:47:22Z"
+  title: "Grongish"
+host: "grongish.shogo82148.com"
+schemes:
+- "https"
+paths:
+  /translate:
+    get:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "from"
+        in: "query"
+        required: false
+        type: "string"
+      - name: "text"
+        in: "query"
+        description: "translate between Japanese and Grongish"
+        required: true
+        type: "string"
+      - name: "retranslation"
+        in: "query"
+        required: false
+        type: "string"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/TranslateResult"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+    options:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Headers:
+              type: "string"
+definitions:
+  Empty:
+    type: "object"
+    title: "Empty Schema"
+  TranslateResult:
+    type: "object"
+    required:
+    - "lang"
+    - "original"
+    - "translated"
+    properties:
+      original:
+        type: "string"
+      translated:
+        type: "array"
+        items:
+          type: "string"
+      retranslated:
+        type: "array"
+        items:
+          type: "string"
+      lang:
+        type: "string"
+    title: "the result of translation"
+    description: "the result of translation"
