@@ -1,13 +1,12 @@
 # -*- coding:utf-8 -*-
 
 import GrongishTranslator
-g = GrongishTranslator.GrongishTranslator(dic='grongishdic')
+g = GrongishTranslator.GrongishTranslator(fromdic='fromgrongishdic', todic='togrongishdic')
 
 GRONGISH_CHARS = set(u'ガギグゲゴザジズゼゾダヂヅデドバビブベボラリルレロサシスセソマミムメモパジャュョン')
 
 def lambda_handler(event, context):
     text = event.get('text', '')
-    nbest = max(int(event.get('nbest') or '1'), 1)
     retranslation = event.get('retranslation')
     from_lang = (event.get('from') or 'auto').lower()
 
@@ -30,9 +29,9 @@ def lambda_handler(event, context):
             "lang": "ja",
         }
         if retranslation:
-            result["retranslated"] = g.grtranslateNBest(translated, nbest)
+            result["retranslated"] = [g.grtranslate(translated)]
     elif from_lang == "grongish":
-        translated = g.grtranslateNBest(text, nbest)
+        translated = [g.grtranslate(text)]
         result = {
             "original": text,
             "translated": translated,
