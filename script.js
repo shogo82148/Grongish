@@ -15,18 +15,18 @@
     translate.addEventListener('click', function() {
         translate.disabled = true;
         var xhr = new XMLHttpRequest();
-        var data = new FormData();
-        data.append('text', original.value);
-        data.append('retranslation', 'true');
+        var url = 'https://grongish.shogo82148.com/translate';
+        url += '?text=' + decodeURIComponent(original.value);
+        url += '&retranslation=true';
         if (auto_detect.checked) {
-            data.append('from', 'auto');
+            url += '&from=auto';
         } else if (lang_grongish.checked) {
-            data.append('from', 'grongish');
+            url += '&from=grongish';
         } else if (lang_ja.checked) {
-            data.append('from', 'ja');
+            url += '&from=ja';
         }
 
-        xhr.open('POST', 'https://shogo82148.com/api/grongish/translate', true);
+        xhr.open('GET', url, true);
         xhr.responseType = 'json';
         xhr.addEventListener('load', function() {
             translated.value = xhr.response.translated[0];
@@ -60,7 +60,7 @@
             console.log(e);
             translate.disabled = false;
         });
-        xhr.send(data);
+        xhr.send();
     });
 
     function sync_lang() {
