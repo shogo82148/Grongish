@@ -83,5 +83,5 @@ class TestGrongish(unittest.TestCase):
         self.assertEqual(self.grongish.grtranslate(u'ボンジジュグギゾガギバギグス'), u'この日重視を再開する') # この日遊戯を再開する
         self.assertEqual(self.grongish.grtranslate(u'ゲゲルンギバブゾロヅボパザセザ'), u'ゲームの資格を持つ子は誰だ')
         self.assertEqual(self.grongish.grtranslate(u'ゲゲルゾザジレスゾ'), u'ゲームを始める度') # ゲームを始めるぞ
-        self.assertEqual(self.grongish.grtranslate(u'バギンドドググ'), u'11')
+        self.assertEqual(self.grongish.grtranslate(u'バギンドドググ'), u'十一')
         self.assertEqual(self.grongish.grtranslate(u'バギングドググ'), u'18')
