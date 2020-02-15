@@ -4,29 +4,6 @@ from __future__ import print_function
 import re
 import MeCab
 
-try:
-    # python 2.x
-    from itertools import izip
-    zip = izip
-except ImportError:
-    pass
-
-try:
-    unicode # python 2.x
-    def encodeMeCab(text):
-        if isinstance(text, unicode):
-            text = text.encode('utf-8')
-        return text
-    def decodeMeCab(text):
-        return text.decode('utf-8')
-except:
-    # With python 3.x, SWIG converts str into char* automatically.
-    # so we do not convert them.
-    def encodeMeCab(text):
-        return text
-    def decodeMeCab(text):
-        return text
-
 class GrongishTranslator(object):
     "グロンギ語-日本語の相互翻訳機"
 
@@ -110,8 +87,7 @@ class GrongishTranslator(object):
     _re_ja_numbers = re.compile(u'[0123456789０１２３４５６７８９〇一二三四五六七八九零壱弐参十百千万億兆京]+')
     def translate(self, text):
         "日本語からグロンギ語への翻訳を行う"
-        text = encodeMeCab(text)
-        text = decodeMeCab(self._totagger.parse(text)).strip('\r\n')
+        text = self._totagger.parse(text).strip('\r\n')
         text = self.re_ltu.sub(u'\\1\\1', text)
         text = self.re_long.sub(u'\\1\\1', text) # 長音の変換
         text = self._re_ja_numbers.sub(
@@ -131,7 +107,6 @@ class GrongishTranslator(object):
 
     def grtranslate(self, text):
         "グロンギ語を日本語に翻訳する"
-        text = encodeMeCab(text)
-        text = decodeMeCab(self._fromtagger.parse(text)).strip('\r\n')
+        text = self._fromtagger.parse(text).strip('\r\n')
         text = self.re_numbers.sub(lambda m: self._translate_num(m.group()), text)
         return text
