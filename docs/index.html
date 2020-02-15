@@ -1,0 +1,110 @@
+<html>
+  <header>
+    <title>グロンギ語翻訳</title>
+    <link rel="stylesheet" type="text/css" href="./style.css">
+  </header>
+  <body>
+    <h1>グロンギ語語翻訳機</h1>
+
+    <div id="container">
+      <div id="leftbox">
+	<div id="original-box">
+	  <div class="box-header">
+	    <input type="radio" name="lang" id="lang-grongish" checked><label for="lang-grongish">グ</label>
+	    <input type="radio" name="lang" id="lang-ja"><label for="lang-ja">日</label>
+	    <input type="checkbox" id="auto-detect" checked><label for="auto-detect">言語自動判定</label>
+	  </div>
+	  <div class="box-inner">
+	    <div class="resizable-textarea">
+	      <textarea id="original" rows="4" placeholder="翻訳したい文章"></textarea>
+	    </div>
+	  </div>
+	</div>
+	<div id="retranslated-box">
+	  <div class="box-header">
+	    再翻訳
+	  </div>
+	  <div class="box-inner">
+	    <textarea id="retranslated" rows="4"></textarea>
+	  </div>
+	</div>
+      </div>
+
+      <div id="rightbox">
+	<div id="translated-box">
+	  <div class="box-header">
+	    <input type="radio" name="translated-lang" id="translated-lang-ja" checked><label>日</label>
+	    <input type="radio" name="translated-lang" id="translated-lang-grongish"><label>グ</label>
+	    &nbsp;
+	    <div class="tools">
+	      <div id="twitter-share-button">
+		<a class="twitter-share-button" href="https://twitter.com/share" data-url="http://shogo82148.github.io/Grongish/">Tweet</a>
+	      </div>
+	    </div>
+	  </div>
+	  <div class="box-inner">
+	    <textarea id="translated" rows="13"></textarea>
+	  </div>
+	</div>
+      </div>
+
+      <div id="centerbox">
+	<div class="arrow-right">&gt;</div>
+	<input id="translate" type="button" value="翻訳">
+	<label><input type="checkbox" checked>再翻訳</label>
+	<div class="arrow-left">&lt;</div>
+      </div>
+      <script src="./script.js"></script>
+      <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+    </div>
+
+    <h2>グロンギ語とは</h2>
+    <p>
+      グロンギ語とは「<a href="https://ja.wikipedia.org/wiki/%E4%BB%AE%E9%9D%A2%E3%83%A9%E3%82%A4%E3%83%80%E3%83%BC%E3%82%AF%E3%82%A6%E3%82%AC">仮面ライダークウガ</a>」に登場する架空の言語です。
+      換字式暗号の一種で、日本語の文に簡単な置き換えルールを当てはめることで、グロンギ語に翻訳できます。
+      このページではさらにグロンギ語の文章から元になった日本語を推測できます。
+    </p>
+
+    <h2>技術的な話</h2>
+    <h3>日本語からグロンギ語への翻訳</h3>
+    <p>
+      グロンギ語への変換ルールは「あ行をガ行に置き換える」のような簡単なものなので、
+      日本語の読みさえわかっていれば、さほど難しくはありません。
+      ただし、グロンギ語は助詞の扱いが特別なので、注意が必要です。
+      例えば「の」は通常「ボ」に置き換えられますが、助詞の「の」は「ン」になります。
+      形態素解析器の<a href="http://taku910.github.io/mecab/">MeCab</a>を使用して、読みと品詞の推定を行っています。
+    </p>
+
+    <h3>グロンギ語から日本語への翻訳</h3>
+    <p>
+      グロンギ語を翻訳するには、グロンギ語の読みから漢字混じりの文を推測する必要があります。
+      「読みから漢字混じりの文を推測する」という点ではグロンギ語も日本語も変わりないので、
+      日本語用の漢字変換ソフトであるIMEを流用できます。
+      IMEの辞書には「『どろ』を『泥』に変換する」といったような規則が書いてあるので、
+      読みの部分を「『ゾソ』を『泥』に変換する」のようにグロンギ語に変換してしまえばいいのです。
+      このページではオープンソースのIMEである<a href="https://github.com/google/mozc">mozc</a>の辞書をベースにして、
+      グロンギ語用の辞書を作成しています。
+      mozcの変換機能も使えると良かったのですが、大変だったので実際の変換にはMeCabを使用しています。
+    </p>
+
+    <h2>リンク</h2>
+    <ul>
+      <li><a href="https://github.com/shogo82148/Grongish/">翻訳プログラムのソース</a></li>
+      <li><a href="http://www.geocities.jp/moa_da/Kuuga/Grongigo.html">グロンギ語解説</a></li>
+      <li><a href="https://github.com/google/mozc">mozc</a></li>
+      <li><a href="http://taku910.github.io/mecab/">MeCab</a></li>
+    </ul>
+
+    <a href="http://b.hatena.ne.jp/entry/http://shogo82148.github.io/Grongish/" class="hatena-bookmark-button" data-hatena-bookmark-title="グロンギ語翻訳" data-hatena-bookmark-layout="standard-balloon" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;" /></a><script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-4526627-4', 'auto');
+      ga('send', 'pageview');
+    </script>
+  </body>
+</html>

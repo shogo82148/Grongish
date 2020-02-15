@@ -1,0 +1,188 @@
+body {
+    font-size: 13px;
+    font-family: 'ＭＳ Ｐゴシック', arial, helvetica, clean, sans-serif;
+    color: #111111;
+}
+
+#container {
+    display: table;
+    width: 100%;
+}
+
+#leftbox {
+    display: table-cell;
+    float: left;
+    width: 50%;
+}
+
+#original-box {
+    overflow: hidden;
+    padding: 0 35px 0 0;
+}
+
+#retranslated-box {
+    overflow: hidden;
+    padding: 0 35px 0 0;
+    margin: 15px 0 0;
+}
+
+#translated-box {
+    overflow: hidden;
+    padding: 0 0 0 35px;
+}
+
+.box-header {
+    padding: 10px;
+    position: relative;
+    font-weight: 700;
+    white-space: nowrap;
+    background: #e2e2e2;
+    border-radius: 3px 3px 0 0;
+}
+
+.tools {
+    position: absolute;
+    right: 10px;
+    top: 8px;
+    font-weight: 400;
+}
+
+.box-inner {
+    padding: 2px 5px 5px;
+    background: #e2e2e2;
+    border-radius: 0 0 5px 5px;
+}
+
+#rightbox {
+    display: table-cell;
+    float: right;
+    width: 50%;
+}
+
+textarea {
+    display: block;
+    background: #ffffff;
+    width: 100%;
+    max-width: 100%;
+    border: 0;
+    outline: 0;
+    font-size: 100%;
+    font-weight: normal;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 2px #999 inset,0 0 1px 1px #eee;
+}
+
+textarea:focus {
+    background: #ffffef;
+}
+
+#centerbox {
+    width: 60px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    text-align: center;
+    padding: 8px 0 0;
+}
+
+#translate {
+    cursor: pointer;
+    border-radius: 4px;
+    border: 1px solid #4C85D6;
+    background: linear-gradient(#47ACF0 0%, #178BE8 100%);
+    box-shadow: 0 1px #CBE7FA inset, 1px 1px 2px #888888;
+    text-shadow: 0px 0px 5px #000000;
+    color: #FAFCFD;
+    font-size: 120%;
+    font-weight: lighter;
+    padding: 10px;
+    margin: 20px auto 10px;
+}
+
+#translate:hover {
+    background: linear-gradient(#3A7EC4 0%, #226EC1 100%);
+    box-shadow: 0 1px #7397C8 inset, 1px 1px 2px #888888;
+    text-shadow: 0px 0px 5px #000000;
+    color: #BEC9DF;
+}
+
+#translate:disabled {
+    cursor: wait;
+    background: linear-gradient(#3A7EC4 0%, #226EC1 100%);
+    box-shadow: 0 1px #7397C8 inset, 1px 1px 2px #888888;
+    text-shadow: 0px 0px 5px #000000;
+    color: #BEC9DF;
+}
+
+.arrow-right {
+    margin: 50px auto 0;
+    color: #FFCC00;
+    font-size: 250%;
+}
+
+.arrow-left {
+    margin: 30px auto 0;
+    color: #FFCC00;
+    font-size: 250%;
+}
+
+input[name=lang], input[name=translated-lang] {
+    display: none;
+}
+
+input[name=lang] + label {
+    display: block;
+    float: left;
+    cursor: pointer;
+    border-radius: 4px;
+    margin: 0 10px 0 0;
+    width: 42px;
+    text-align: center;
+    font-size: 110%;
+    border: 1px solid #CCCCCC;
+    background: linear-gradient(#F0F0F0 0%, #F0F0F0 80%, #DDDDDD 100%);
+    box-shadow: 0 1px #FEFEFE inset;
+    color: #A6A6A6;
+}
+
+input[name=lang] + label:hover {
+    border: 1px solid #BDBDBD;
+    background: linear-gradient(#E3E3E3 0%, #E3E3E3 80%, #CBCBCB 100%);
+    box-shadow: 0 1px #EEEEEE inset;
+    color: #AAAAAA;
+}
+
+input[name=lang]:checked + label {
+    border: 1px solid #002995;
+    background: linear-gradient(#5C7DCE 0%, #5C7DCE 80%, #0F399D 100%);
+    box-shadow: 0 1px #7490D4 inset;
+    color: #ECF0F9;
+}
+
+input[name=lang]:checked + label:hover {
+    border: 1px solid #11358D;
+    background: linear-gradient(#516CAF 0%, #516CAF 80%, #284691 100%);
+    box-shadow: 0 1px #5F77B4 inset;
+    color: #CFD0D3;
+}
+
+input[name=translated-lang] + label {
+    display: block;
+    float: left;
+    border-radius: 4px;
+    margin: 0 10px 0 0;
+    width: 42px;
+    text-align: center;
+    font-size: 110%;
+    border: 1px solid #C3C3C3;
+    background: linear-gradient(#D7D7D7 0%, #E1E1E1 50%, #E1E1E1 100%);
+    color: #A0A0A0;
+}
+
+input[name=translated-lang]:checked + label {
+    border: 1px solid #113486;
+    background: linear-gradient(#113486 0%, #4869BC 50%, #4869BC 100%);
+    color: #EDF0F7;
+}
