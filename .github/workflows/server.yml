@@ -11,6 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: build
+        run: |
+          make docker
+        working-directory: server
       - name: test
         run: |
-          make -C server test
+          make test
+        working-directory: server

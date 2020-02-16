@@ -15,25 +15,30 @@ installmecab:
 	cd /tmp && tar zxfv mecab.tar.gz
 	cd "/tmp/mecab-$(MECAB_VERSION)" && ./configure --prefix=$(CURDIR) --enable-utf8-only && make && make install
 
+	curl -o /tmp/mecab-python.tar.gz -sSL "https://github.com/shogo82148/mecab/releases/download/v$(MECAB_VERSION)/mecab-python-$(MECAB_VERSION).tar.gz"
+	cd /tmp && tar zxfv mecab-python.tar.gz
+	export PATH=$(PREFIX)/bin:$$PATH && cd "/tmp/mecab-python-$(MECAB_VERSION)" && python setup.py build && python setup.py install --prefix $(CURDIR) 
+
 installgrongish:
 	curl -o /tmp/Grongish.tar.gz -fsSL "https://github.com/shogo82148/Grongish/releases/download/v$(GRONGISH_VERSION)/Grongish.tar.gz"
 	cd /tmp && tar zxvf Grongish.tar.gz
 	cp -r /tmp/Grongish/* .
-	export PATH=$(PREFIX)/bin:$$PATH; pip install -t $(PREFIX) -r requirements.txt
+	pip install -t $(PREFIX) -r requirements.txt
 
 docker:
+	rm -rf grongish-server
 	mkdir -p grongish-server
 	cp Makefile grongish-server/
 	cp requirements.txt grongish-server/
 	cp lambda_function.py grongish-server/
 	docker run -v "$(CURDIR)/grongish-server":/var/task lambci/lambda:build-$(RUNTIME_VERSION) make install
 
-zip: docker
+zip:
 	cd grongish-server && \
 	zip -9 -r ../grongish-server.zip . \
 	-x Makefile -x *.pyc
 
-test: docker
+test:
 	docker run -v "$(PWD)/grongish-server":/var/task lambci/lambda:$(RUNTIME_VERSION) lambda_function.lambda_handler '{"text":"お前のにおいがリントどもを誘ったのだ"}'
 
 clean:
