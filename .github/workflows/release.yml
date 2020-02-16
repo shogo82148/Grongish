@@ -1,0 +1,43 @@
+name: build release binaries
+
+on:
+  pull_request:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        python:
+          - '3.8'
+      fail-fast: false
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: checkout submodules
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --force --recursive
+      - name: setup Python ${{ matrix.python }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: install mecab
+        run: |
+          .github/install-mecab-linux.sh
+      - name: make dictionary
+        run: |
+          make Grongish.tar.gz
+
+      - uses: actions/upload-artifact@v1
+        with:
+          name: Grongish.tar.gz
+          path: Grongish.tar.gz
+      - name: Upload Release Assets
+        uses: shogo82148/actions-upload-release-asset@v1
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: Grongish.tar.gz
+        if: github.event_name == 'release'
