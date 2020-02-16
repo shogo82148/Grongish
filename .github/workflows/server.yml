@@ -1,0 +1,21 @@
+name: server test
+
+on:
+  pull_request: {}
+  push:
+    branches:
+      - master
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: build
+        run: |
+          make docker
+        working-directory: server
+      - name: test
+        run: |
+          make test
+        working-directory: server
