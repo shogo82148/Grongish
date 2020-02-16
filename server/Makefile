@@ -13,12 +13,11 @@ install: installmecab installgrongish
 installmecab:
 	curl -o /tmp/mecab.tar.gz -sSL "https://github.com/shogo82148/mecab/releases/download/v$(MECAB_VERSION)/mecab-$(MECAB_VERSION).tar.gz"
 	cd /tmp && tar zxfv mecab.tar.gz
-	cd "/tmp/mecab-$(MECAB_VERSION)" && ./configure --prefix=$(CURDIR) --enable-utf8-only && make && make install
+	cd "/tmp/mecab-$(MECAB_VERSION)" && ./configure --prefix=$(PREFIX) --enable-utf8-only && make && make install
 
 	curl -o /tmp/mecab-python.tar.gz -sSL "https://github.com/shogo82148/mecab/releases/download/v$(MECAB_VERSION)/mecab-python-$(MECAB_VERSION).tar.gz"
 	cd /tmp && tar zxfv mecab-python.tar.gz
-	mkdir -p $(PREFIX)/lib/$(RUNTIME_VERSION)/site-packages
-	export PATH=$(PREFIX)/bin:$$PATH && export PYTHONPATH=$(PREFIX)/lib/$(RUNTIME_VERSION)/site-packages && cd "/tmp/mecab-python-$(MECAB_VERSION)" && python setup.py build && python setup.py install --prefix $(CURDIR) 
+	export PATH=$(PREFIX)/bin:$$PATH && export PYTHONPATH=$(PREFIX) && cd "/tmp/mecab-python-$(MECAB_VERSION)" && python setup.py build && python setup.py install --install-lib $(CURDIR) 
 
 installgrongish:
 	curl -o /tmp/Grongish.tar.gz -fsSL "https://github.com/shogo82148/Grongish/releases/download/v$(GRONGISH_VERSION)/Grongish.tar.gz"
