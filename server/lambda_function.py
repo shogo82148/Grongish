@@ -41,7 +41,7 @@ def lambda_handler(event, context):
             result["retranslated"] = [g.translate(translated[0])]
     else:
         result = {
-            "error": "unsuppoted language"
+            "error": "unsupported language"
         }
 
     return result
