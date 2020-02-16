@@ -1,0 +1,16 @@
+name: server test
+
+on:
+  pull_request: {}
+  push:
+    branches:
+      - master
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: test
+        run: |
+          make -C server test
