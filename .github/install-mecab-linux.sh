@@ -7,7 +7,7 @@ set -uxe
 TMPDIR=$(mktemp -d)
 trap 'rm -rfv "$TMPDIR"' EXIT
 
-MECAB_VERSION=0.996.2
+MECAB_VERSION=0.996.11
 
 # install mecab
 cd "$TMPDIR"
@@ -25,5 +25,4 @@ cd "$TMPDIR"
 curl -o mecab-python.tar.gz -sSL "https://github.com/shogo82148/mecab/releases/download/v$MECAB_VERSION/mecab-python-$MECAB_VERSION.tar.gz"
 tar zxfv mecab-python.tar.gz
 cd "mecab-python-$MECAB_VERSION"
-python setup.py build
-python setup.py install
+python -m pip install .
