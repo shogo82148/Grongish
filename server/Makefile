@@ -29,7 +29,7 @@ docker:
 	mkdir -p grongish-server
 	cp Makefile grongish-server/
 	cp lambda_function.py grongish-server/
-	docker run -v "$(CURDIR)/grongish-server":/var/task ghcr.io/shogo82148/lambda-python:build-$(RUNTIME_VERSION)-arm64 make install
+	docker run -v "$(CURDIR)/grongish-server":/var/task ghcr.io/shogo82148/lambda-python:build-$(RUNTIME_VERSION)-x86_64 make install
 
 zip:
 	cd grongish-server && \
@@ -37,7 +37,7 @@ zip:
 	-x Makefile -x *.pyc
 
 test:
-	docker run -v "$(PWD)/grongish-server":/var/task ghcr.io/shogo82148/lambda-python:$(RUNTIME_VERSION)-arm64 lambda_function.lambda_handler '{"text":"お前のにおいがリントどもを誘ったのだ"}'
+	docker run -v "$(PWD)/grongish-server":/var/task ghcr.io/shogo82148/lambda-python:$(RUNTIME_VERSION)-x86_64 lambda_function.lambda_handler '{"text":"お前のにおいがリントどもを誘ったのだ"}'
 
 clean:
 	-rm -rf grongish-server
