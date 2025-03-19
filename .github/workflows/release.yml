@@ -31,7 +31,7 @@ jobs:
         run: |
           make Grongish.tar.gz
 
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v4
         with:
           name: Grongish.tar.gz
           path: Grongish.tar.gz
