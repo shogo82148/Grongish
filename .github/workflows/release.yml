@@ -21,7 +21,7 @@ jobs:
           git submodule sync --recursive
           git submodule update --init --force --recursive
       - name: setup Python ${{ matrix.python }}
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
       - name: install mecab
