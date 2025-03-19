@@ -1,6 +1,6 @@
 .PHONY: all install installmecab installdic installgrongish docker clean zip test
 
-MECAB_VERSION=0.996.2
+MECAB_VERSION=0.996.11
 RUNTIME_VERSION=python3.8
 GRONGISH_VERSION=0.0.5
 
