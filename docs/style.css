@@ -185,6 +185,13 @@ input[name=translated-lang]:checked + label {
     color: #EDF0F7;
 }
 
+/* prevent iOS Safari from zooming in on focus */
+@media (pointer: coarse) {
+    textarea {
+        font-size: 16px;
+    }
+}
+
 @media (max-width: 640px) {
     body {
         margin: 8px 16px;
@@ -199,11 +206,6 @@ input[name=translated-lang]:checked + label {
             "translated"
             "retranslated";
         row-gap: 10px;
-    }
-
-    /* prevent iOS Safari from zooming in on focus */
-    textarea {
-        font-size: 16px;
     }
 
     #translated {
