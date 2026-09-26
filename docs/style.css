@@ -4,34 +4,42 @@ body {
     color: #111111;
 }
 
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 #container {
-    display: table;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 70px minmax(0, 1fr);
+    grid-template-areas:
+        "original     center translated"
+        "retranslated center translated";
+    column-gap: 0;
+    row-gap: 15px;
     width: 100%;
 }
 
-#leftbox {
-    display: table-cell;
-    float: left;
-    width: 50%;
+#leftbox, #rightbox {
+    display: contents;
 }
 
 #original-box {
+    grid-area: original;
     overflow: hidden;
-    padding: 0 35px 0 0;
 }
 
 #retranslated-box {
+    grid-area: retranslated;
     overflow: hidden;
-    padding: 0 35px 0 0;
-    margin: 15px 0 0;
 }
 
 #translated-box {
+    grid-area: translated;
     overflow: hidden;
-    padding: 0 0 0 35px;
 }
 
 .box-header {
+    display: flow-root;
     padding: 10px;
     position: relative;
     font-weight: 700;
@@ -53,12 +61,6 @@ body {
     border-radius: 0 0 5px 5px;
 }
 
-#rightbox {
-    display: table-cell;
-    float: right;
-    width: 50%;
-}
-
 textarea {
     display: block;
     background: #ffffff;
@@ -78,11 +80,7 @@ textarea:focus {
 }
 
 #centerbox {
-    width: 60px;
-    position: absolute;
-    left: 0;
-    right: 0;
-    margin: 0 auto;
+    grid-area: center;
     text-align: center;
     padding: 8px 0 0;
 }
@@ -185,4 +183,52 @@ input[name=translated-lang]:checked + label {
     border: 1px solid #113486;
     background: linear-gradient(#113486 0%, #4869BC 50%, #4869BC 100%);
     color: #EDF0F7;
+}
+
+@media (max-width: 640px) {
+    body {
+        margin: 8px 16px;
+        font-size: 15px;
+    }
+
+    #container {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas:
+            "original"
+            "center"
+            "translated"
+            "retranslated";
+        row-gap: 10px;
+    }
+
+    /* prevent iOS Safari from zooming in on focus */
+    textarea {
+        font-size: 16px;
+    }
+
+    #translated {
+        height: 10em;
+    }
+
+    #centerbox {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        padding: 0;
+    }
+
+    .arrow-right {
+        margin: 0;
+        transform: rotate(90deg);
+    }
+
+    .arrow-left {
+        display: none;
+    }
+
+    #translate {
+        margin: 0;
+        padding: 10px 32px;
+    }
 }
